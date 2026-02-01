@@ -19,6 +19,7 @@ import {
   UserSquare,
   Map,
   Tractor,
+  Store,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -34,6 +35,7 @@ const navItems = [
   { href: "/dashboard/ai-advisory", icon: BotMessageSquare, label: "ai_advisory" },
   { href: "/dashboard/ask-expert", icon: UserSquare, label: "ask_expert" },
   { href: "/dashboard/resources", icon: Map, label: "resources" },
+  { href: "/dashboard/direct-sales", icon: Store, label: "direct_sales" },
 ];
 
 export function AppSidebar() {

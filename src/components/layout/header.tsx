@@ -37,6 +37,8 @@ export function Header() {
         return t("ask_expert_title");
       case "/dashboard/resources":
         return t("resources_title");
+      case "/dashboard/direct-sales":
+        return t("direct_sales_title");
       default:
         return t("farmekox");
     }

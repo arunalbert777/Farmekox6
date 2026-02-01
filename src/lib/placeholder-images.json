@@ -41,6 +41,24 @@
       "description": "An aerial view of a farm.",
       "imageUrl": "https://images.unsplash.com/photo-1516822277566-bb38424a2b77?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxhZXJpYWwlMjBmYXJtfGVufDB8fHx8MTc2OTk4NjA0MHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "aerial farm"
+    },
+    {
+      "id": "product-tomatoes",
+      "description": "A basket of fresh tomatoes.",
+      "imageUrl": "https://images.unsplash.com/photo-1683009118690-a5851ccb1112?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxmcmVzaCUyMHRvbWF0b2VzfGVufDB8fHx8MTc2OTk1NDgyNnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fresh tomatoes"
+    },
+    {
+      "id": "product-potatoes",
+      "description": "A pile of freshly harvested potatoes.",
+      "imageUrl": "https://images.unsplash.com/photo-1741517922282-45b999eb9e49?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxmcmVzaCUyMHBvdGF0b2VzfGVufDB8fHx8MTc2OTk5MDA1NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fresh potatoes"
+    },
+    {
+      "id": "product-onions",
+      "description": "A bunch of red onions.",
+      "imageUrl": "https://images.unsplash.com/photo-1641738219797-c814f6fab4d3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxyZWQlMjBvbmlvbnN8ZW58MHx8fHwxNzY5OTkwMDU0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "red onions"
     }
   ]
 }
