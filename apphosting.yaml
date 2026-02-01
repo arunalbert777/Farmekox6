@@ -8,3 +8,5 @@ runConfig:
 secretEnvironmentVariables:
   - key: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
     secret: GOOGLE_MAPS_API_KEY_SECRET
+  - key: GEMINI_API_KEY
+    secret: GEMINI_API_KEY_SECRET
