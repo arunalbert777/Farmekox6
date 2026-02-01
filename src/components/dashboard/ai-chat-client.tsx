@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Send, Loader2, User, Bot } from "lucide-react";
+import { Send, Loader2, User, Bot, Mic, MicOff, StopCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
@@ -30,7 +30,13 @@ export function AIChatClient() {
     { id: 1, text: "Welcome! How can I help you with your farm today?", sender: "ai" },
   ]);
   const [loading, setLoading] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -38,15 +44,59 @@ export function AIChatClient() {
   });
 
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTo({
-        top: scrollAreaRef.current.scrollHeight,
-        behavior: "smooth",
-      });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, loading]);
+
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = language === 'kn' ? 'kn-IN' : 'en-US';
+
+      recognition.onstart = () => setIsRecording(true);
+      recognition.onend = () => setIsRecording(false);
+      
+      recognition.onresult = (event) => {
+        const transcript = Array.from(event.results)
+          .map((result) => result[0])
+          .map((result) => result.transcript)
+          .join('');
+        form.setValue('message', transcript);
+      };
+      
+      recognition.onerror = (event) => {
+          console.error("Speech recognition error", event.error);
+          setIsRecording(false);
+      }
+
+      recognitionRef.current = recognition;
+    } else {
+      console.warn("Speech Recognition not supported in this browser.");
     }
-  }, [messages]);
+  }, [language, form]);
+
+  const handleToggleRecording = () => {
+    if (!recognitionRef.current) return;
+    if (isRecording) {
+      recognitionRef.current.stop();
+    } else {
+      form.reset({ message: '' });
+      recognitionRef.current.start();
+    }
+  };
+
+  const stopAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsSpeaking(false);
+    }
+  };
 
   const onSubmit = async (values: FormValues) => {
+    stopAudio();
     const userMessage: Message = { id: Date.now(), text: values.message, sender: "user" };
     setMessages((prev) => [...prev, userMessage]);
     setLoading(true);
@@ -59,7 +109,14 @@ export function AIChatClient() {
       });
       const aiMessage: Message = { id: Date.now() + 1, text: response.advice, sender: "ai" };
       setMessages((prev) => [...prev, aiMessage]);
+      
+      if (audioRef.current && response.audio) {
+          audioRef.current.src = response.audio;
+          audioRef.current.play();
+          setIsSpeaking(true);
+      }
     } catch (error) {
+      console.error(error);
       const errorMessage: Message = {
         id: Date.now() + 1,
         text: "Sorry, I encountered an error. Please try again.",
@@ -121,6 +178,7 @@ export function AIChatClient() {
               </div>
             </div>
           )}
+          <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
       <div className="border-t p-4">
@@ -129,15 +187,37 @@ export function AIChatClient() {
             {...form.register("message")}
             placeholder={t("type_your_message")}
             autoComplete="off"
-            disabled={loading}
+            disabled={loading || isRecording}
           />
-          <Button type="button" variant="outline" onClick={toggleLanguage} disabled={loading}>
+          <Button type="button" variant="outline" onClick={toggleLanguage} disabled={loading || isRecording}>
             {language.toUpperCase()}
           </Button>
-          <Button type="submit" size="icon" disabled={loading}>
+          <Button 
+            type="button" 
+            size="icon" 
+            onClick={handleToggleRecording} 
+            disabled={loading} 
+            variant={isRecording ? 'destructive' : 'outline'}
+            aria-label={isRecording ? "Stop recording" : "Start recording"}
+          >
+            {isRecording ? <MicOff className="size-5" /> : <Mic className="size-5" />}
+          </Button>
+          <Button type="submit" size="icon" disabled={loading || isRecording || !form.watch("message")}>
             <Send className="size-5" />
           </Button>
+          {isSpeaking && (
+            <Button 
+              type="button" 
+              size="icon" 
+              onClick={stopAudio} 
+              variant="destructive"
+              aria-label="Stop audio"
+            >
+              <StopCircle className="size-5" />
+            </Button>
+          )}
         </form>
+        <audio ref={audioRef} onEnded={() => setIsSpeaking(false)} className="hidden" />
       </div>
     </div>
   );
