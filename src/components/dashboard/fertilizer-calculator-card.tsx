@@ -1,28 +1,20 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/lib/hooks";
-import { Calculator, ArrowRight } from "lucide-react";
+import { Calculator } from "lucide-react";
 import Link from "next/link";
 
 export function FertilizerCalculatorCard() {
   const { t } = useLanguage();
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("fertilizer_calculator")}</CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col items-center justify-center text-center">
-        <Calculator className="size-16 text-primary/80" />
-        <p className="mt-4 text-muted-foreground">Scan a barcode to get fertilizer details and dosage.</p>
-        <Button asChild className="mt-6">
-          <Link href="/dashboard/fertilizer-calculator">
-            Open Calculator
-            <ArrowRight className="ml-2 size-4" />
-          </Link>
-        </Button>
-      </CardContent>
-    </Card>
+    <Link href="/dashboard/fertilizer-calculator" className="block h-full transform transition-transform duration-200 hover:scale-105">
+      <Card className="h-full">
+        <CardContent className="flex h-full flex-col items-center justify-center p-4 text-center">
+          <Calculator className="mb-2 size-8 text-primary" />
+          <span className="text-sm font-medium">{t("fertilizer_calculator")}</span>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }

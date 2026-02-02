@@ -15,13 +15,13 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <OverviewCards />
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <WeatherForecastCard />
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         <CropRecommendationCard />
+        <CropCalendarCard />
+        <WeatherForecastCard />
+        <FertilizerCalculatorCard />
         <MarketWatchCard />
         <AIChatCard />
-        <CropCalendarCard />
-        <FertilizerCalculatorCard />
         <AskExpertCard />
         <ResourcesCard />
         <DirectSalesCard />
