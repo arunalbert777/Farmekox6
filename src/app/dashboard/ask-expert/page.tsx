@@ -1,27 +1,22 @@
-import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Phone, MessageSquare, UserSquare } from 'lucide-react';
 
 const experts = [
   {
-    name: "Dr. Anjali Sharma",
-    specialty: "Agronomist",
-    description: "Specializes in crop rotation, soil health, and sustainable farming practices. 15+ years of experience.",
-    image: PlaceHolderImages.find(img => img.id === 'expert1'),
+    name: "Dr. Rajesh Kumar",
+    specialty: "Urban Farming Specialist, Bengaluru",
+    description: "Expert in rooftop gardening, hydroponics, and vertical farming suited for Bengaluru's urban environment. Provides consultations on setting up city farms.",
   },
   {
-    name: "Mr. Vikram Singh",
-    specialty: "Soil Scientist",
-    description: "Expert in soil testing, nutrient management, and improving soil fertility for higher yields.",
-    image: PlaceHolderImages.find(img => img.id === 'expert2'),
+    name: "Mrs. Sunita Gowda",
+    specialty: "Organic Farming Consultant, Bengaluru",
+    description: "Specializes in organic certification, soil enrichment with local composts, and pest control using native plants. Based near Lalbagh.",
   },
   {
-    name: "Dr. Priya Patel",
-    specialty: "Pest Control Expert",
-    description: "Focuses on Integrated Pest Management (IPM) and organic solutions for common crop diseases.",
-    image: PlaceHolderImages.find(img => img.id === 'expert3'),
+    name: "Mr. Anand Desai",
+    specialty: "Horticulturist, Bengaluru",
+    description: "Advises on fruit and vegetable cultivation for commercial and home gardens in the Bengaluru climate. Expert in local varieties and water conservation.",
   },
 ];
 
@@ -39,18 +34,8 @@ export default function AskExpertPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {experts.map((expert) => (
           <Card key={expert.name} className="flex flex-col">
-            <CardHeader className="items-center">
-              {expert.image && (
-                <Image
-                  src={expert.image.imageUrl}
-                  alt={`Portrait of ${expert.name}`}
-                  width={100}
-                  height={100}
-                  className="rounded-full border-4 border-primary/20"
-                  data-ai-hint={expert.image.imageHint}
-                />
-              )}
-              <CardTitle className="pt-4">{expert.name}</CardTitle>
+            <CardHeader className="items-center text-center">
+              <CardTitle>{expert.name}</CardTitle>
               <CardDescription className="text-primary font-semibold">{expert.specialty}</CardDescription>
             </CardHeader>
             <CardContent className="flex-1">
