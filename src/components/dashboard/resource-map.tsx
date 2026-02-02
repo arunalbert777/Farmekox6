@@ -32,12 +32,42 @@ function ResourceMapContent() {
   const [places, setPlaces] = useState<PlaceResult[]>([]);
   const [selectedPlace, setSelectedPlace] = useState<PlaceResult | null>(null);
   const [loading, setLoading] = useState(false);
-  const position = { lat: 12.9716, lng: 77.5946 }; // Bengaluru
+  const [currentPosition, setCurrentPosition] = useState<{lat: number, lng: number} | null>(null);
+  const [geolocating, setGeolocating] = useState(true);
+  const fallbackPosition = { lat: 12.9716, lng: 77.5946 }; // Bengaluru
+
+  useEffect(() => {
+    setGeolocating(true);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setCurrentPosition({ lat: latitude, lng: longitude });
+          setGeolocating(false);
+        },
+        () => {
+          console.warn("Geolocation failed or was denied. Falling back to default location.");
+          setCurrentPosition(fallbackPosition); 
+          setGeolocating(false);
+        }
+      );
+    } else {
+      console.warn("Geolocation is not supported by this browser. Falling back to default location.");
+      setCurrentPosition(fallbackPosition);
+      setGeolocating(false);
+    }
+  }, []); // Run only once on mount
 
   useEffect(() => {
     if (!placesLibrary || !map) return;
     setPlacesService(new placesLibrary.PlacesService(map));
   }, [placesLibrary, map]);
+
+  useEffect(() => {
+    if (currentPosition && map) {
+      map.setCenter(currentPosition);
+    }
+  }, [currentPosition, map]);
 
   const handleSearch = () => {
     if (!placesService || !map || !map.getCenter() || !searchQuery) return;
@@ -47,7 +77,7 @@ function ResourceMapContent() {
 
     const request: google.maps.places.TextSearchRequest = {
       query: searchQuery,
-      location: map.getCenter(),
+      location: map.getCenter()!,
       radius: 5000,
     };
 
@@ -59,16 +89,23 @@ function ResourceMapContent() {
     });
   };
 
-  // Perform an initial search when the service is ready.
+  // Perform an initial search when the service is ready and location is found.
   useEffect(() => {
-    if (placesService) {
+    if (placesService && currentPosition) {
       handleSearch();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [placesService]);
+  }, [placesService, currentPosition]);
 
   return (
     <div className="w-full h-full relative">
+      {geolocating && (
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center">
+            <Loader2 className="size-8 animate-spin text-primary mb-4" />
+            <p className="text-muted-foreground">Detecting your location...</p>
+        </div>
+      )}
+
       <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-sm flex gap-2 px-4">
         <Input
           type="text"
@@ -80,14 +117,14 @@ function ResourceMapContent() {
           }}
           className="bg-background/90 backdrop-blur-sm shadow-md"
         />
-        <Button onClick={handleSearch} disabled={loading} size="icon" className="shadow-md">
+        <Button onClick={handleSearch} disabled={loading || geolocating} size="icon" className="shadow-md">
           {loading ? <Loader2 className="animate-spin" /> : <Search />}
           <span className="sr-only">Search</span>
         </Button>
       </div>
 
       <Map
-        defaultCenter={position}
+        defaultCenter={fallbackPosition}
         defaultZoom={13}
         mapId="farmekox_map"
         className="w-full h-full"
@@ -103,10 +140,15 @@ function ResourceMapContent() {
             >
                 <div
                     className="w-5 h-5 rounded-full border-2 border-white bg-primary"
-                    title={place.name}
+                    title={place.name || ''}
                 />
             </AdvancedMarker>
           ) : null
+        )}
+        {currentPosition && (
+          <AdvancedMarker position={currentPosition} title="Your Location">
+             <div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-white shadow-lg" />
+          </AdvancedMarker>
         )}
       </Map>
 
@@ -132,8 +174,8 @@ function ResourceMapContent() {
                     </div>
                 )}
                 {selectedPlace.opening_hours && (
-                  <p className={`text-sm font-semibold ${selectedPlace.opening_hours.isOpen ? 'text-green-600' : 'text-destructive'}`}>
-                    {selectedPlace.opening_hours.isOpen ? 'Open now' : 'Closed'}
+                  <p className={`text-sm font-semibold ${selectedPlace.opening_hours.isOpen() ? 'text-green-600' : 'text-destructive'}`}>
+                    {selectedPlace.opening_hours.isOpen() ? 'Open now' : 'Closed'}
                   </p>
                 )}
                 {selectedPlace.types && (
