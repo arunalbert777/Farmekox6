@@ -48,7 +48,7 @@ export function OverviewCards() {
               <item.icon className="size-5 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{item.value}</div>
+              <div className="text-xl font-bold sm:text-2xl">{item.value}</div>
               <p className="text-xs text-muted-foreground">{item.description}</p>
             </CardContent>
           </Card>

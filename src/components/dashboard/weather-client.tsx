@@ -13,6 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Separator } from "@/components/ui/separator";
 import { Loader2, RefreshCw, Sun, Cloud, CloudRain, Droplets, Info } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 const formSchema = z.object({
   location: z.string().min(2, "Location is required."),
@@ -74,18 +75,23 @@ export function WeatherClient() {
           </div>
           <CardDescription>For Bengaluru, India</CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4 text-center">
-          {forecast.map((day, index) => (
-            <div key={index} className="p-4 rounded-lg bg-secondary/50 flex flex-col items-center gap-2">
-              <p className="font-bold">{day.day}</p>
-              <day.Icon className="size-8 text-primary" />
-              <p className="font-semibold">{day.temp}°C</p>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Droplets className="size-3" />
-                <span>{day.chanceOfRain}%</span>
-              </div>
-            </div>
-          ))}
+        <CardContent>
+            <ScrollArea className="w-full whitespace-nowrap">
+                <div className="flex w-max space-x-4">
+                    {forecast.map((day, index) => (
+                        <div key={index} className="p-4 rounded-lg bg-secondary/50 flex flex-col items-center gap-2 text-center min-w-[100px]">
+                        <p className="font-bold">{day.day}</p>
+                        <day.Icon className="size-8 text-primary" />
+                        <p className="font-semibold">{day.temp}°C</p>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Droplets className="size-3" />
+                            <span>{day.chanceOfRain}%</span>
+                        </div>
+                        </div>
+                    ))}
+                </div>
+                <ScrollBar orientation="horizontal" />
+            </ScrollArea>
         </CardContent>
       </Card>
       

@@ -182,12 +182,13 @@ export function AIChatClient() {
         </div>
       </ScrollArea>
       <div className="border-t p-4">
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center gap-2">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-wrap items-center gap-2">
           <Input
             {...form.register("message")}
             placeholder={t("type_your_message")}
             autoComplete="off"
             disabled={loading || isRecording}
+            className="flex-1 min-w-[150px]"
           />
           <Button type="button" variant="outline" onClick={toggleLanguage} disabled={loading || isRecording}>
             {language.toUpperCase()}

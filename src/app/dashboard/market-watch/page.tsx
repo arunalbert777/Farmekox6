@@ -64,7 +64,7 @@ export default function MarketWatchPage() {
                   <TableCell>{item.variety}</TableCell>
                   <TableCell className="text-right font-semibold">₹{item.price.toLocaleString()}</TableCell>
                   <TableCell className="text-right">
-                    <Badge variant={item.change > 0 ? 'default' : 'destructive'} className='bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700'>
+                    <Badge variant={item.change > 0 ? 'secondary' : 'destructive'}>
                       {item.change > 0 ? <ArrowUp className="mr-1 size-3" /> : <ArrowDown className="mr-1 size-3" />}
                       {item.change}%
                     </Badge>
