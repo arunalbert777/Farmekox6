@@ -153,3 +153,42 @@ If the farmer encounters an unexpected pest or has a general question, they can 
 As harvest approaches, the farmer consults the **Market Watch** to check the current mandi prices for their crop, helping them decide the best time to sell. To find buyers or necessary supplies, they use the **Nearby Resources** map, where they can search for "seed stores" or "mandis" near their location.
 
 Finally, to maximize their profits, the farmer can bypass intermediaries using the **Direct Sales** module. They can add a pin on the map at their farm's location, list their "Fresh Tomatoes" at "₹30/kg," and wait for local customers to connect with them directly. This feature fosters a farm-to-table ecosystem, benefiting both the farmer and the consumer.
+
+---
+
+## 8. Project File Structure
+
+Here is a high-level overview of the important files and directories in the project:
+
+```text
+src/
+├── ai/
+│   ├── flows/
+│   │   ├── ai-voice-chat-advisory.ts     # AI flow for voice/chat advisory
+│   │   ├── crop-recommendation.ts        # AI flow for crop suggestions
+│   │   ├── fertilizer-recommendation.ts  # AI flow for fertilizer details
+│   │   └── rain-alert-irrigation-advice.ts # AI flow for irrigation advice
+│   ├── dev.ts                            # Genkit development server entrypoint
+│   └── genkit.ts                         # Genkit AI plugin configuration
+├── app/
+│   ├── dashboard/                        # Main application section
+│   │   ├── [feature]/page.tsx            # Pages for each feature module
+│   │   ├── layout.tsx                      # Layout for the dashboard
+│   │   └── page.tsx                        # Main dashboard landing page
+│   ├── globals.css                       # Global styles and Tailwind directives
+│   ├── layout.tsx                        # Root layout for the entire app
+│   └── page.tsx                          # Root page (redirects to dashboard)
+├── components/
+│   ├── dashboard/                        # React components specific to dashboard pages
+│   ├── layout/                           # Layout components (sidebar, header)
+│   └── ui/                               # Reusable UI components from ShadCN
+├── context/
+│   └── language-context.tsx              # React context for language management (EN/KN)
+├── hooks/
+│   ├── use-language.ts                   # Custom hook for accessing language context
+│   └── use-toast.ts                      # Custom hook for showing toast notifications
+└── lib/
+    ├── placeholder-images.json           # Data for placeholder images
+    ├── translations.ts                   # English and Kannada translation strings
+    └── utils.ts                          # Utility functions (e.g., cn for Tailwind)
+```
