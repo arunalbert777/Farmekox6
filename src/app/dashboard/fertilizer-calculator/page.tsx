@@ -7,48 +7,29 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Barcode, Calculator, Loader2 } from "lucide-react";
 import { useLanguage } from "@/lib/hooks";
-
-type FertilizerInfo = {
-  name: string;
-  composition: string;
-  details: string;
-};
-
-const mockDb: { [key: string]: FertilizerInfo } = {
-  "123456789": {
-    name: "Urea Gold",
-    composition: "46% Nitrogen, 17% Sulphur",
-    details: "A sulphur-coated urea that improves nitrogen use efficiency and provides essential sulphur to the soil.",
-  },
-  "987654321": {
-    name: "DAP (Di-Ammonium Phosphate)",
-    composition: "18% Nitrogen, 46% Phosphorus",
-    details: "A popular phosphate fertilizer, providing two key nutrients for plant growth.",
-  },
-};
+import { getFertilizerRecommendation, type FertilizerRecommendationOutput } from "@/ai/flows/fertilizer-recommendation";
 
 
 export default function FertilizerCalculatorPage() {
   const { t } = useLanguage();
   const [barcode, setBarcode] = useState("");
-  const [result, setResult] = useState<FertilizerInfo | null>(null);
+  const [result, setResult] = useState<FertilizerRecommendationOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleScan = () => {
+  const handleScan = async () => {
     setLoading(true);
     setError(null);
     setResult(null);
 
-    setTimeout(() => {
-      const info = mockDb[barcode];
-      if (info) {
-        setResult(info);
-      } else {
-        setError("Fertilizer not found. Please check the barcode and try again.");
-      }
-      setLoading(false);
-    }, 1000);
+    try {
+      const info = await getFertilizerRecommendation({ barcode });
+      setResult(info);
+    } catch (err: any) {
+      setError(err.message || "Fertilizer not found. Please check the barcode and try again.");
+    } finally {
+        setLoading(false);
+    }
   };
 
   return (
@@ -95,6 +76,18 @@ export default function FertilizerCalculatorPage() {
                 <div>
                   <h4 className="font-semibold">Details</h4>
                   <p className="text-muted-foreground">{result.details}</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold">Recommended Dosage</h4>
+                  <p className="text-muted-foreground">{result.dosage}</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold">Usage Instructions</h4>
+                  <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+                    {result.usageInstructions.map((step, index) => (
+                      <li key={index}>{step}</li>
+                    ))}
+                  </ul>
                 </div>
               </CardContent>
             </Card>
