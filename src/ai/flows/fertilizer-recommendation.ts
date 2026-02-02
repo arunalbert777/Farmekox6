@@ -16,14 +16,14 @@ const mockProductDb: {[key: string]: string} = {
   '987654321': 'DAP (Di-Ammonium Phosphate)',
 };
 
-export const FertilizerRecommendationInputSchema = z.object({
+const FertilizerRecommendationInputSchema = z.object({
   barcode: z.string().describe('The barcode number of the fertilizer bag.'),
 });
 export type FertilizerRecommendationInput = z.infer<
   typeof FertilizerRecommendationInputSchema
 >;
 
-export const FertilizerRecommendationOutputSchema = z.object({
+const FertilizerRecommendationOutputSchema = z.object({
   name: z.string().describe('The name of the fertilizer.'),
   composition: z
     .string()
