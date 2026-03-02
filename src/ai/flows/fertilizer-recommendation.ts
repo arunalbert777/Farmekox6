@@ -39,7 +39,7 @@ export async function getFertilizerProductInfo(input: { barcode: string }): Prom
 const prompt = ai.definePrompt({
   name: 'fertilizerProductInfoPrompt',
   input: {schema: FertilizerInputSchema},
-  output: {schema: FertilizerProductInfoInfoSchema},
+  output: {schema: FertilizerProductInfoSchema},
   prompt: `You are an agricultural expert. A user has provided a fertilizer barcode: '{{barcode}}'. 
   Identify the product associated with this barcode. If you cannot find the specific real-world product, create a highly realistic and plausible profile for a fertilizer that would likely have such a barcode.
 
