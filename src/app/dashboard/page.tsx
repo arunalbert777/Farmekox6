@@ -1,3 +1,4 @@
+
 "use client";
 
 import { AIChatCard } from "@/components/dashboard/ai-chat-card";
