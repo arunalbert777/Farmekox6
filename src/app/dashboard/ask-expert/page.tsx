@@ -1,51 +1,148 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Phone, MessageSquare, UserSquare } from 'lucide-react';
+import { Phone, MessageSquare, UserSquare, Star, MapPin } from 'lucide-react';
+import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { Badge } from '@/components/ui/badge';
 
 const experts = [
   {
-    name: "Dr. Rajesh Kumar",
-    specialty: "Urban Farming Specialist, Bengaluru",
-    description: "Expert in rooftop gardening, hydroponics, and vertical farming suited for Bengaluru's urban environment. Provides consultations on setting up city farms.",
+    id: "exp1",
+    name: "Dr. Anjali Sharma",
+    specialty: "Agronomist & Crop Specialist",
+    location: "Jayanagar, Bengaluru",
+    rating: 4.8,
+    reviews: 124,
+    description: "Expert in soil health and high-yield crop management specifically for the Karnataka region. Specializes in Ragi and Maize.",
+    image: PlaceHolderImages.find(img => img.id === 'expert1'),
+    phone: "+91 98450 12345"
   },
   {
-    name: "Mrs. Sunita Gowda",
-    specialty: "Organic Farming Consultant, Bengaluru",
-    description: "Specializes in organic certification, soil enrichment with local composts, and pest control using native plants. Based near Lalbagh.",
+    id: "exp2",
+    name: "Mr. Vikram Singh",
+    specialty: "Soil Testing & Nutrient Expert",
+    location: "Whitefield, Bengaluru",
+    rating: 4.5,
+    reviews: 89,
+    description: "15+ years experience in precise soil analysis and customized fertilizer schedules for organic and commercial farms.",
+    image: PlaceHolderImages.find(img => img.id === 'expert2'),
+    phone: "+91 80234 56789"
   },
   {
-    name: "Mr. Anand Desai",
-    specialty: "Horticulturist, Bengaluru",
-    description: "Advises on fruit and vegetable cultivation for commercial and home gardens in the Bengaluru climate. Expert in local varieties and water conservation.",
+    id: "exp3",
+    name: "Dr. Priya Patel",
+    specialty: "Pest & Disease Control",
+    location: "Malleshwaram, Bengaluru",
+    rating: 4.9,
+    reviews: 210,
+    description: "Leading expert in identifying and treating complex plant diseases using integrated pest management techniques.",
+    image: PlaceHolderImages.find(img => img.id === 'expert3'),
+    phone: "+91 99001 88776"
+  },
+  {
+    id: "exp4",
+    name: "Mr. Suresh Hegde",
+    specialty: "Seed Tech & Hybrid Varieties",
+    location: "Hebbal, Bengaluru",
+    rating: 4.6,
+    reviews: 56,
+    description: "Advises on choosing the right seeds for local climate conditions. Expert in drought-resistant varieties.",
+    phone: "+91 94480 55443"
+  },
+  {
+    id: "exp5",
+    name: "Ms. Kavitha Rao",
+    specialty: "Organic Certification Consultant",
+    location: "Koramangala, Bengaluru",
+    rating: 4.7,
+    reviews: 72,
+    description: "Helps farmers transition to organic farming and navigate the certification process for export markets.",
+    phone: "+91 91234 56780"
+  },
+  {
+    id: "exp6",
+    name: "Dr. Ravi Chandra",
+    specialty: "Horticulture & Greenhouse Farming",
+    location: "Banashankari, Bengaluru",
+    rating: 4.4,
+    reviews: 45,
+    description: "Specialist in poly-house cultivation, vertical farming, and efficient drip irrigation systems.",
+    phone: "+91 88776 55443"
   },
 ];
 
 export default function AskExpertPage() {
   return (
-    <div className="container mx-auto max-w-4xl space-y-8">
-        <div className='text-center'>
-            <div className="mx-auto bg-primary/10 p-4 rounded-full w-fit">
-                <UserSquare className="size-8 text-primary" />
-            </div>
-            <h1 className="font-headline text-3xl mt-4">Ask an Expert</h1>
-            <p className="text-muted-foreground">Connect with our agricultural experts for personalized advice.</p>
+    <div className="container mx-auto max-w-6xl space-y-8 pb-12">
+      <div className='text-center'>
+        <div className="mx-auto bg-primary/10 p-4 rounded-full w-fit">
+          <UserSquare className="size-8 text-primary" />
         </div>
+        <h1 className="font-headline text-3xl mt-4 md:text-4xl">Connect with an Expert</h1>
+        <p className="text-muted-foreground max-w-2xl mx-auto mt-2 text-lg">
+          Get professional guidance from verified agricultural specialists in Bengaluru.
+        </p>
+      </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {experts.map((expert) => (
-          <Card key={expert.name} className="flex flex-col">
-            <CardHeader className="items-center text-center">
-              <CardTitle>{expert.name}</CardTitle>
-              <CardDescription className="text-primary font-semibold">{expert.specialty}</CardDescription>
+          <Card key={expert.id} className="flex flex-col h-full overflow-hidden hover:shadow-lg transition-shadow border-primary/10">
+            <div className="relative h-48 bg-secondary/30">
+              {expert.image ? (
+                <Image
+                  src={expert.image.imageUrl}
+                  alt={expert.image.description}
+                  fill
+                  className="object-cover"
+                  data-ai-hint={expert.image.imageHint}
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <UserSquare className="size-16 text-muted-foreground/30" />
+                </div>
+              )}
+              <div className="absolute top-2 right-2">
+                <Badge variant="secondary" className="bg-white/90 backdrop-blur-sm text-primary font-bold shadow-sm">
+                  <Star className="size-3 mr-1 fill-primary" />
+                  {expert.rating}
+                </Badge>
+              </div>
+            </div>
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-xl">{expert.name}</CardTitle>
+              <CardDescription className="text-primary font-bold uppercase text-xs tracking-wider">
+                {expert.specialty}
+              </CardDescription>
+              <div className="flex items-center text-xs text-muted-foreground">
+                <MapPin className="size-3 mr-1" />
+                {expert.location}
+              </div>
             </CardHeader>
             <CardContent className="flex-1">
-              <p className="text-sm text-center text-muted-foreground">{expert.description}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {expert.description}
+              </p>
+              <div className="mt-4 flex items-center gap-1">
+                <div className="flex">
+                  {[...Array(5)].map((_, i) => (
+                    <Star 
+                      key={i} 
+                      className={`size-3 ${i < Math.floor(expert.rating) ? 'fill-amber-400 text-amber-400' : 'text-gray-300'}`} 
+                    />
+                  ))}
+                </div>
+                <span className="text-[10px] text-muted-foreground ml-1">
+                  ({expert.reviews} verified reviews)
+                </span>
+              </div>
             </CardContent>
-            <CardFooter className="flex justify-center gap-2">
-              <Button>
-                <Phone className="mr-2 size-4" /> Call
+            <CardFooter className="grid grid-cols-2 gap-2 border-t pt-4 bg-secondary/5">
+              <Button className="w-full" asChild>
+                <a href={`tel:${expert.phone.replace(/\s/g, '')}`}>
+                  <Phone className="mr-2 size-4" /> Call
+                </a>
               </Button>
-              <Button variant="secondary">
+              <Button variant="outline" className="w-full">
                 <MessageSquare className="mr-2 size-4" /> Message
               </Button>
             </CardFooter>
