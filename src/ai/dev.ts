@@ -6,4 +6,4 @@ import '@/ai/flows/ai-voice-chat-advisory.ts';
 import '@/ai/flows/crop-recommendation.ts';
 import '@/ai/flows/fertilizer-recommendation.ts';
 import '@/ai/flows/get-agricultural-news.ts';
-import '@/ai/flows/satellite-analysis.ts';
+

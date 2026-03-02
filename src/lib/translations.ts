@@ -17,7 +17,6 @@ export const translations: Translation = {
   ask_expert: { en: 'Ask an Expert', kn: 'ತಜ್ಞರನ್ನು ಕೇಳಿ' },
   resources: { en: 'Nearby Resources', kn: 'ಹತ್ತಿರದ ಸಂಪನ್ಮೂಲಗಳು' },
   direct_sales: { en: 'Direct Sales', kn: 'ನೇರ ಮಾರಾಟ' },
-  satellite_monitoring: { en: 'Satellite Monitoring', kn: 'ಉಪಗ್ರಹ ಮೇಲ್ವಿಚಾರಣೆ' },
 
   // General
   farmekox: { en: 'Farmekox', kn: 'ಫಾರ್ಮೆಕೋಕ್ಸ್' },
@@ -39,7 +38,6 @@ export const translations: Translation = {
   ask_expert_title: { en: 'Connect with an Expert', kn: 'ತಜ್ಞರೊಂದಿಗೆ ಸಂಪರ್ಕ ಸಾಧಿಸಿ' },
   resources_title: { en: 'Find Nearby Resources', kn: 'ಹತ್ತಿರದ ಸಂಪನ್ಮೂಲಗಳನ್ನು ಹುಡುಕಿ' },
   direct_sales_title: { en: 'Direct Sales from Farm', kn: 'ಫಾರ್ಮ್‌ನಿಂದ ನೇರ ಮಾರಾಟ' },
-  satellite_monitoring_title: { en: 'AI Satellite Monitoring', kn: 'AI ಉಪಗ್ರಹ ಮೇಲ್ವಿಚಾರಣೆ' },
 
   // Forms & Buttons
   get_recommendation: { en: 'Get Recommendation', kn: 'ಶಿಫಾರಸು ಪಡೆಯಿರಿ' },

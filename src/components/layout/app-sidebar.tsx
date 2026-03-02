@@ -21,7 +21,6 @@ import {
   Map,
   Tractor,
   Store,
-  Satellite,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -30,7 +29,6 @@ import { useLanguage } from "@/lib/hooks";
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "dashboard" },
   { href: "/dashboard/crop-recommendation", icon: Leaf, label: "crop_recommendation" },
-  { href: "/dashboard/satellite", icon: Satellite, label: "satellite_monitoring" },
   { href: "/dashboard/crop-calendar", icon: Calendar, label: "crop_calendar" },
   { href: "/dashboard/weather", icon: CloudSun, label: "weather_forecast" },
   { href: "/dashboard/fertilizer-info", icon: Info, label: "fertilizer_info" },
