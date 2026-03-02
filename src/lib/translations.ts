@@ -51,8 +51,8 @@ export const translations: Translation = {
   enter_climate: { en: 'e.g., Hot and humid', kn: 'ಉದಾ., ಬಿಸಿ ಮತ್ತು ತೇವಾಂಶ' },
   submit: { en: 'Submit', kn: 'ಸಲ್ಲಿಸಿ' },
   refresh: { en: 'Refresh', kn: 'ರಿಫ್ರೆಶ್' },
-  scan_barcode: { en: 'Scan Barcode', kn: 'ಬಾರ್‌ಕೋಡ್ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ' },
-  barcode_number: { en: 'Barcode Number', kn: 'ಬಾರ್‌ಕೋಡ್ ಸಂಖ್ಯೆ' },
+  scan_barcode: { en: 'Scan QR/Barcode', kn: 'ಕ್ಯೂಆರ್/ಬಾರ್‌ಕೋಡ್ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ' },
+  barcode_number: { en: 'Barcode/QR Content', kn: 'ಬಾರ್‌ಕೋಡ್/ಕ್ಯೂಆರ್ ವಿಷಯ' },
   type_your_message: { en: 'Type your message...', kn: 'ನಿಮ್ಮ ಸಂದೇಶವನ್ನು ಟೈಪ್ ಮಾಡಿ...' },
   send: { en: 'Send', kn: 'ಕಳುಹಿಸು' },
   
@@ -81,7 +81,7 @@ export const translations: Translation = {
   // Fertilizer Info Specific
   soil_type: { en: 'Soil Type', kn: 'ಮಣ್ಣಿನ ಪ್ರಕಾರ' },
   farm_size: { en: 'Farm Size (Acres)', kn: 'ಫಾರ್ಮ್ ಗಾತ್ರ (ಎಕರೆ)' },
-  get_ai_advice: { en: 'Get AI Personalized Advice', kn: 'AI ವೈಯಕ್ತಿಕ ಸಲಹೆ ಪಡೆಯಿರಿ' },
+  get_ai_advice: { en: 'Get AI Personalized Advice', kn: 'AI ವೈಯಿಕ ಸಲಹೆ ಪಡೆಯಿರಿ' },
   product_name: { en: 'Product Name', kn: 'ಉತ್ಪನ್ನದ ಹೆಸರು' },
   brand_name: { en: 'Brand Name', kn: 'ಬ್ರಾಂಡ್ ಹೆಸರು' },
   npk_composition: { en: 'NPK Composition', kn: 'NPK ಸಂಯೋಜನೆ' },

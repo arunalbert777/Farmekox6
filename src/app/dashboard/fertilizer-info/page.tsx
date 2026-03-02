@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Info, Loader2, Camera, Send, AlertCircle, CheckCircle2, FlaskConical, Droplets, Clock, ShieldCheck, Scale, X } from "lucide-react";
+import { Info, Loader2, Camera, Send, AlertCircle, CheckCircle2, FlaskConical, Droplets, Clock, ShieldCheck, Scale, X, QrCode } from "lucide-react";
 import { useLanguage } from "@/lib/hooks";
 import { getFertilizerProductInfo, type FertilizerProductInfo } from "@/ai/flows/fertilizer-recommendation";
 import { useToast } from "@/hooks/use-toast";
@@ -65,7 +65,7 @@ export default function FertilizerInfoPage() {
   const handleFetchProduct = async () => {
     const trimmedBarcode = barcode.trim();
     if (!trimmedBarcode) {
-        toast({ variant: "destructive", title: "Missing Input", description: "Please enter a barcode number." });
+        toast({ variant: "destructive", title: "Missing Input", description: "Please enter a barcode or QR code content." });
         return;
     }
     
@@ -73,12 +73,12 @@ export default function FertilizerInfoPage() {
     setProductInfo(null);
 
     try {
-      // Direct call to Gemini AI for real-time identification
+      // Direct call to Gemini AI for real-time identification using our strict GS1 rules
       const info = await getFertilizerProductInfo({ barcode: trimmedBarcode });
       setProductInfo(info);
-      setIsCameraOpen(false); // Close camera on success
+      setIsCameraOpen(false);
     } catch (err: any) {
-      toast({ variant: "destructive", title: "Identification Error", description: "Could not identify this barcode. Please ensure the number is correct." });
+      toast({ variant: "destructive", title: "Identification Error", description: "Could not identify this product. Please check the code." });
     } finally {
         setLoading(false);
     }
@@ -88,17 +88,17 @@ export default function FertilizerInfoPage() {
     <div className="container mx-auto max-w-4xl space-y-6 pb-12">
       <div className="text-center mb-6">
         <div className="mx-auto bg-primary/10 p-4 rounded-full w-fit">
-          <Info className="size-8 text-primary" />
+          <QrCode className="size-8 text-primary" />
         </div>
         <h1 className="font-headline text-3xl mt-4">{t("fertilizer_info_title")}</h1>
-        <p className="text-muted-foreground">Identify any product via EAN, UPC, GTIN, or ISBN and get expert instructions.</p>
+        <p className="text-muted-foreground">Scan QR codes, EAN-13 barcodes, or enter HSN codes for instant product info.</p>
       </div>
 
       <div className="grid gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Barcode Search</CardTitle>
-            <CardDescription>Scan a barcode or enter the code manually to get real-time info.</CardDescription>
+            <CardTitle>Scan or Enter Code</CardTitle>
+            <CardDescription>Works with Indian agricultural QR codes, HSN 3105 codes, and global EAN/UPC barcodes.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {isCameraOpen && (
@@ -126,13 +126,13 @@ export default function FertilizerInfoPage() {
 
             <div className="flex flex-col gap-4">
               <div className="flex-1 space-y-2">
-                <Label htmlFor="barcode">Barcode Number (EAN, UPC, GTIN, ISBN)</Label>
+                <Label htmlFor="barcode">Product Code (QR, EAN, UPC, GTIN, ISBN, HSN)</Label>
                 <div className="flex gap-2">
                     <Input
                         id="barcode"
                         value={barcode}
                         onChange={(e) => setBarcode(e.target.value)}
-                        placeholder="e.g., 8901138815943"
+                        placeholder="Scan QR or enter e.g., 8901138815943"
                         className="flex-1"
                         onKeyDown={(e) => e.key === 'Enter' && handleFetchProduct()}
                     />
@@ -141,9 +141,9 @@ export default function FertilizerInfoPage() {
                     </Button>
                 </div>
               </div>
-              <Button onClick={handleFetchProduct} disabled={loading} className="w-full">
-                {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Send className="mr-2 size-4" />}
-                {loading ? 'Identifying Product...' : 'Identify Product'}
+              <Button onClick={handleFetchProduct} disabled={loading} className="w-full h-12 text-lg">
+                {loading ? <Loader2 className="mr-2 size-5 animate-spin" /> : <Send className="mr-2 size-5" />}
+                {loading ? 'Identifying Product...' : 'Get Product Info'}
               </Button>
             </div>
           </CardContent>
@@ -166,11 +166,11 @@ export default function FertilizerInfoPage() {
                         <p className="font-bold text-xl text-primary">{productInfo.npkComposition}</p>
                     </div>
                     <div>
-                        <Label className="text-xs uppercase text-muted-foreground font-bold">Expiry Info</Label>
+                        <Label className="text-xs uppercase text-muted-foreground font-bold">Expiry / Batch Info</Label>
                         <p className="font-medium">{productInfo.expiryDate}</p>
                     </div>
                     <div>
-                        <Label className="text-xs uppercase text-muted-foreground font-bold">Suitable Crops / Use</Label>
+                        <Label className="text-xs uppercase text-muted-foreground font-bold">Recommended Use</Label>
                         <div className="flex flex-wrap gap-1 mt-1">
                             {productInfo.suitableCrops.map(c => (
                                 <span key={c} className="bg-primary/10 text-primary-foreground text-primary px-2 py-0.5 rounded text-xs border border-primary/20">{c}</span>
@@ -178,8 +178,8 @@ export default function FertilizerInfoPage() {
                         </div>
                     </div>
                     <div>
-                        <Label className="text-xs uppercase text-muted-foreground font-bold">Recommended Environment</Label>
-                        <p className="text-sm">{productInfo.recommendedSoilType}</p>
+                        <Label className="text-xs uppercase text-muted-foreground font-bold">Recommended Soil</Label>
+                        <p className="text-sm font-medium">{productInfo.recommendedSoilType}</p>
                     </div>
                     <div className="md:col-span-2">
                         <Label className="text-xs uppercase text-muted-foreground font-bold">Manufacturer Details</Label>
@@ -199,8 +199,8 @@ export default function FertilizerInfoPage() {
 
             <Card className="border-accent/30 shadow-md">
               <CardHeader className="bg-accent/5 border-b">
-                <CardTitle className="text-xl">5-Step Usage Guide</CardTitle>
-                <CardDescription>Expert instructions tailored to this product.</CardDescription>
+                <CardTitle className="text-xl">Expert 5-Step Usage Guide</CardTitle>
+                <CardDescription>Tailored instructions for effective results.</CardDescription>
               </CardHeader>
               <CardContent className="pt-6 space-y-6">
                 <div className="flex gap-4 group">
@@ -208,7 +208,7 @@ export default function FertilizerInfoPage() {
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
                             <Scale className="size-4 text-primary" />
-                            <p className="font-bold text-base text-foreground">Step 1: Dosage / Portion</p>
+                            <p className="font-bold text-base text-foreground">Step 1: Dosage / Serving</p>
                         </div>
                         <p className="text-sm text-muted-foreground leading-relaxed">{productInfo.usageInstructions.dosagePerAcre}</p>
                     </div>
