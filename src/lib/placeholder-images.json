@@ -2,9 +2,9 @@
   "placeholderImages": [
     {
       "id": "app-logo",
-      "description": "Farmekox Official Green Leaf Logo",
-      "imageUrl": "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=512&h=512&fit=crop",
-      "imageHint": "green leaf"
+      "description": "Farmekox Minimalist Leaf Logo",
+      "imageUrl": "https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=512&h=512&fit=crop",
+      "imageHint": "minimal leaf"
     },
     {
       "id": "expert1",
@@ -21,7 +21,7 @@
     {
       "id": "expert3",
       "description": "Dr. Priya Patel - Plant Pathologist",
-      "imageUrl": "https://images.unsplash.com/photo-1551836022-d5d88e9218df?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxmZW1hbGUlMjBzY2llbnRpc3R8ZW58MHx8fHwxNzczMDI0NjE1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1551836022-d5d88e9218df?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw8fHxmZW1hbGUlMjBzY2llbnRpc3R8ZW58MHx8fHwxNzczMDI0NjE1fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "female scientist"
     },
     {

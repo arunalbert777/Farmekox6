@@ -10,7 +10,7 @@ import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 /**
- * A PWA installation prompt component featuring the official Farmekox "Leaf X" logo.
+ * A PWA installation prompt component featuring the official Farmekox "Leaf" logo.
  */
 export function InstallPWAButton() {
   const { t } = useLanguage();
@@ -58,7 +58,8 @@ export function InstallPWAButton() {
                 src={logo.imageUrl} 
                 alt="Farmekox Logo" 
                 fill 
-                className="object-cover rounded-xl"
+                className="object-contain p-1 rounded-xl"
+                data-ai-hint={logo.imageHint}
               />
             )}
             <Sparkles className="size-4 text-accent absolute top-0.5 right-0.5 animate-pulse z-10" />

@@ -50,17 +50,18 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader>
         <div className="flex items-center gap-3 px-3 py-4">
-          <div className="relative size-12 flex-shrink-0 overflow-hidden rounded-xl shadow-md border-2 border-primary/20 bg-white">
+          <div className="relative size-12 flex-shrink-0 overflow-hidden rounded-xl shadow-md border-2 border-primary/20 bg-white p-1">
             {logo && (
               <Image 
                 src={logo.imageUrl} 
                 alt="Farmekox Logo" 
                 fill 
-                className="object-cover"
+                className="object-contain"
+                data-ai-hint={logo.imageHint}
               />
             )}
           </div>
-          <h1 className="font-headline text-2xl font-bold text-primary">
+          <h1 className="font-headline text-2xl font-bold text-primary tracking-tight">
             {t('farmekox')}
           </h1>
         </div>
