@@ -30,16 +30,15 @@ const getWeatherForecast = ai.defineTool(
     outputSchema: WeatherForecastOutputSchema,
   },
   async input => {
-    // TODO: Implement the weather forecast retrieval logic here using an external API.
-    // For now, return some dummy data.
+    // Simulated weather data for 2025
     return [
-      {date: '2024-07-22', chanceOfRain: 10},
-      {date: '2024-07-23', chanceOfRain: 20},
-      {date: '2024-07-24', chanceOfRain: 60},
-      {date: '2024-07-25', chanceOfRain: 70},
-      {date: '2024-07-26', chanceOfRain: 10},
-      {date: '2024-07-27', chanceOfRain: 5},
-      {date: '2024-07-28', chanceOfRain: 5},
+      {date: '2025-07-22', chanceOfRain: 10},
+      {date: '2025-07-23', chanceOfRain: 20},
+      {date: '2025-07-24', chanceOfRain: 60},
+      {date: '2025-07-25', chanceOfRain: 70},
+      {date: '2025-07-26', chanceOfRain: 10},
+      {date: '2025-07-27', chanceOfRain: 5},
+      {date: '2025-07-28', chanceOfRain: 5},
     ];
   }
 );

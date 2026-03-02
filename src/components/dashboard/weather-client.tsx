@@ -23,13 +23,13 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const initialForecast = [
-  { day: "Today", date: "2024-07-22", chanceOfRain: 10, temp: 32, Icon: Sun },
-  { day: "Tue", date: "2024-07-23", chanceOfRain: 20, temp: 33, Icon: Cloud },
-  { day: "Wed", date: "2024-07-24", chanceOfRain: 60, temp: 29, Icon: CloudRain },
-  { day: "Thu", date: "2024-07-25", chanceOfRain: 70, temp: 28, Icon: CloudRain },
-  { day: "Fri", date: "2024-07-26", chanceOfRain: 10, temp: 31, Icon: Cloud },
-  { day: "Sat", date: "2024-07-27", chanceOfRain: 5, temp: 34, Icon: Sun },
-  { day: "Sun", date: "2024-07-28", chanceOfRain: 5, temp: 34, Icon: Sun },
+  { day: "Today", date: "2025-07-22", chanceOfRain: 10, temp: 32, Icon: Sun },
+  { day: "Tue", date: "2025-07-23", chanceOfRain: 20, temp: 33, Icon: Cloud },
+  { day: "Wed", date: "2025-07-24", chanceOfRain: 60, temp: 29, Icon: CloudRain },
+  { day: "Thu", date: "2025-07-25", chanceOfRain: 70, temp: 28, Icon: CloudRain },
+  { day: "Fri", date: "2025-07-26", chanceOfRain: 10, temp: 31, Icon: Cloud },
+  { day: "Sat", date: "2025-07-27", chanceOfRain: 5, temp: 34, Icon: Sun },
+  { day: "Sun", date: "2025-07-28", chanceOfRain: 5, temp: 34, Icon: Sun },
 ];
 
 export function WeatherClient() {

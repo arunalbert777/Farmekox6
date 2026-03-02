@@ -24,14 +24,14 @@ const initialNewsArticles = [
     id: 1,
     title: "Government Announces New Subsidy for Drip Irrigation Systems",
     source: "AgriNews India",
-    date: "July 24, 2024",
+    date: "July 24, 2025",
     image: PlaceHolderImages.find(img => img.id === 'news1'),
   },
   {
     id: 2,
     title: "Monsoon Forecast Predicts Above-Average Rainfall in Northern States",
     source: "Weather Today",
-    date: "July 23, 2024",
+    date: "July 23, 2025",
     image: PlaceHolderImages.find(img => img.id === 'news2'),
   },
 ];
@@ -60,7 +60,7 @@ export default function MarketWatchPage() {
           id: Date.now(),
           title: "New Export Policy for Onions to Benefit Karnataka Farmers",
           source: "Market Insight",
-          date: "July 25, 2024",
+          date: "July 25, 2025",
           image: PlaceHolderImages.find(img => img.id === 'hero-farm'),
         }
       ].slice(-2);
