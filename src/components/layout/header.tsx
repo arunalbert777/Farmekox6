@@ -10,7 +10,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Languages, User } from "lucide-react";
+import { Languages, User, Mic } from "lucide-react";
+import Link from "next/link";
 
 export function Header() {
   const { toggleLanguage, t } = useLanguage();
@@ -46,8 +47,21 @@ export function Header() {
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 px-2 backdrop-blur-sm md:px-6">
       <SidebarTrigger className="md:hidden" />
-      <h1 className="flex-1 font-headline text-xl md:text-2xl">{getPageTitle()}</h1>
-      <div className="flex items-center gap-4">
+      <h1 className="flex-1 font-headline text-xl md:text-2xl truncate">{getPageTitle()}</h1>
+      <div className="flex items-center gap-2 md:gap-4">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          asChild 
+          className="bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary rounded-full shadow-sm"
+          title="AI Voice Advisory"
+        >
+          <Link href="/dashboard/ai-advisory">
+            <Mic className="size-5" />
+            <span className="sr-only">AI Voice Advisory</span>
+          </Link>
+        </Button>
+
         <Button variant="ghost" size="icon" onClick={toggleLanguage}>
           <Languages className="size-5" />
           <span className="sr-only">Toggle Language</span>
@@ -55,7 +69,7 @@ export function Header() {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon" className="rounded-full">
+            <Button variant="outline" size="icon" className="rounded-full shadow-sm">
               <User className="size-5" />
               <span className="sr-only">User Menu</span>
             </Button>
