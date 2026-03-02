@@ -10,10 +10,12 @@ import { MarketWatchCard } from "@/components/dashboard/market-watch-card";
 import { OverviewCards } from "@/components/dashboard/overview-cards";
 import { ResourcesCard } from "@/components/dashboard/resources-card";
 import { WeatherForecastCard } from "@/components/dashboard/weather-card";
+import { InstallPWAButton } from "@/components/dashboard/install-pwa-button";
 
 export default function DashboardPage() {
   return (
     <div className="space-y-6">
+      <InstallPWAButton />
       <OverviewCards />
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         <CropRecommendationCard />

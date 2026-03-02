@@ -25,6 +25,7 @@ export const translations: Translation = {
   language: { en: 'Language', kn: 'ಭಾಷೆ' },
   english: { en: 'English', kn: 'ಆಂಗ್ಲ' },
   kannada: { en: 'Kannada', kn: 'ಕನ್ನಡ' },
+  install_app: { en: 'Install App', kn: 'ಅಪ್ಲಿಕೇಶನ್ ಸ್ಥಾಪಿಸಿ' },
   
   // Page Titles
   dashboard_title: { en: 'Dashboard Overview', kn: 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ಅವಲೋಕನ' },
