@@ -1,4 +1,3 @@
-
 "use client";
 
 import { AIChatCard } from "@/components/dashboard/ai-chat-card";
@@ -12,6 +11,7 @@ import { OverviewCards } from "@/components/dashboard/overview-cards";
 import { ResourcesCard } from "@/components/dashboard/resources-card";
 import { WeatherForecastCard } from "@/components/dashboard/weather-card";
 import { InstallPWAButton } from "@/components/dashboard/install-pwa-button";
+import { SatelliteCard } from "@/components/dashboard/satellite-card";
 
 export default function DashboardPage() {
   return (
@@ -20,6 +20,7 @@ export default function DashboardPage() {
       <OverviewCards />
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         <CropRecommendationCard />
+        <SatelliteCard />
         <CropCalendarCard />
         <WeatherForecastCard />
         <FertilizerCalculatorCard />
