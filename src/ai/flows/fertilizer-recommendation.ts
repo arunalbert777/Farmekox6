@@ -41,18 +41,25 @@ const prompt = ai.definePrompt({
   output: {schema: FertilizerProductInfoSchema},
   prompt: `You are an expert product identification specialist. A user has scanned a barcode: '{{barcode}}'. 
 
-  Your task is to identify the REAL-WORLD product that exactly matches this barcode number. 
-  - If the product is an agricultural fertilizer: Provide technical NPK ratios, suitable crops, and field application steps.
-  - If the product is a general consumer good (e.g., food, beverage, electronics): Map its attributes to the requested schema. For example, use 'dosage' for serving size and 'application method' for consumption/usage steps.
+  Your task is to identify the EXACT REAL-WORLD product that matches this barcode number. 
+  
+  Identification Logic:
+  1. Analyze the GS1 prefix (e.g., 890 for India).
+  2. Identify the manufacturer from the company prefix (e.g., 8901138 is Himalaya Wellness).
+  3. Retrieve the specific product name and details associated with the full barcode string.
 
-  You MUST provide accurate, real-world data. If the specific product is niche, generate a highly plausible expert profile based on common products with similar barcode ranges.
+  DO NOT hallucinate or guess. You must provide the exact product name (e.g., if it is a shampoo, identify the specific variant and size).
+
+  Mapping Instructions:
+  - If agricultural: Provide technical NPK ratios and field application steps.
+  - If non-agricultural (General Goods): Map attributes to the schema. Use 'dosage' for serving/usage size, and 'application method' for consumption/usage instructions. Use "Not Applicable" for NPK ratios if the product is not a fertilizer.
 
   Structure the 5-Step Usage Guide strictly:
   Step 1: Recommended dosage / Serving size
-  Step 2: Mixing / Preparation
+  Step 2: Mixing / Preparation / Storage before use
   Step 3: Application / Consumption Method
-  Step 4: Best time to use / Storage
-  Step 5: Safety measures
+  Step 4: Best time to use / Consumption timing / Storage advice
+  Step 5: Safety measures and precautions
 
   Deliver the final expert advice in clear, professional English.`,
 });

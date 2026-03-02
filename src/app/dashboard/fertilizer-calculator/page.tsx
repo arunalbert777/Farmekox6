@@ -10,10 +10,12 @@ import { useLanguage } from "@/lib/hooks";
 import { getFertilizerProductInfo, type FertilizerProductInfo } from "@/ai/flows/fertilizer-recommendation";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useUser } from "@/firebase";
 
 export default function FertilizerInfoPage() {
   const { t } = useLanguage();
   const { toast } = useToast();
+  const { user } = useUser();
 
   const [barcode, setBarcode] = useState("");
   const [productInfo, setProductInfo] = useState<FertilizerProductInfo | null>(null);
@@ -65,15 +67,19 @@ export default function FertilizerInfoPage() {
         toast({ variant: "destructive", title: "Missing Input", description: "Please enter a barcode number." });
         return;
     }
+    if (!user) {
+        toast({ variant: "destructive", title: "Authenticating", description: "Please wait a moment while we establish your session." });
+        return;
+    }
     setLoading(true);
     setProductInfo(null);
 
     try {
-      // Force real-time identification via Gemini API
+      // Direct call to Gemini AI for real-time identification
       const info = await getFertilizerProductInfo({ barcode });
       setProductInfo(info);
     } catch (err: any) {
-      toast({ variant: "destructive", title: "Error", description: "Could not identify this barcode. Please try again." });
+      toast({ variant: "destructive", title: "Identification Error", description: "Could not identify this barcode. Please ensure the number is correct." });
     } finally {
         setLoading(false);
     }
@@ -119,8 +125,9 @@ export default function FertilizerInfoPage() {
                         id="barcode"
                         value={barcode}
                         onChange={(e) => setBarcode(e.target.value)}
-                        placeholder="e.g., 890123456789"
+                        placeholder="e.g., 8901138815943"
                         className="flex-1"
+                        onKeyDown={(e) => e.key === 'Enter' && handleFetchProduct()}
                     />
                     <Button onClick={handleToggleCamera} variant="outline" size="icon">
                         <Camera className="size-5" />
@@ -129,21 +136,21 @@ export default function FertilizerInfoPage() {
               </div>
               <Button onClick={handleFetchProduct} disabled={loading} className="w-full">
                 {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Send className="mr-2 size-4" />}
-                Identify Product
+                {loading ? 'Identifying Product...' : 'Identify Product'}
               </Button>
             </div>
           </CardContent>
         </Card>
 
         {productInfo && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <Card className="border-primary/20 shadow-lg">
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <Card className="border-primary/20 shadow-lg overflow-hidden">
               <CardHeader className="bg-primary/5 border-b">
                 <div className="flex items-center gap-2">
                     <CheckCircle2 className="size-6 text-green-600" />
                     <CardTitle className="text-2xl">{productInfo.productName}</CardTitle>
                 </div>
-                <CardDescription className="text-lg font-medium">{productInfo.brandName}</CardDescription>
+                <CardDescription className="text-lg font-medium text-primary/80">{productInfo.brandName}</CardDescription>
               </CardHeader>
               <CardContent className="pt-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -164,7 +171,7 @@ export default function FertilizerInfoPage() {
                         </div>
                     </div>
                     <div>
-                        <Label className="text-xs uppercase text-muted-foreground font-bold">Recommended Soil / Environment</Label>
+                        <Label className="text-xs uppercase text-muted-foreground font-bold">Recommended Environment</Label>
                         <p className="text-sm">{productInfo.recommendedSoilType}</p>
                     </div>
                     <div className="md:col-span-2">
@@ -176,7 +183,7 @@ export default function FertilizerInfoPage() {
                 <Alert variant="default" className="bg-amber-50 border-amber-200">
                     <AlertCircle className="size-4 text-amber-600" />
                     <AlertTitle className="text-amber-800 text-sm font-bold">Safety Precautions</AlertTitle>
-                    <AlertDescription className="text-amber-700 text-xs mt-1">
+                    <AlertDescription className="text-amber-700 text-xs mt-1 leading-relaxed">
                         {productInfo.safetyPrecautions}
                     </AlertDescription>
                 </Alert>
@@ -186,11 +193,11 @@ export default function FertilizerInfoPage() {
             <Card className="border-accent/30 shadow-md">
               <CardHeader className="bg-accent/5 border-b">
                 <CardTitle className="text-xl">Step-by-Step Usage Instructions</CardTitle>
-                <CardDescription>Detailed guide for effective application or use.</CardDescription>
+                <CardDescription>Expert guide for effective application or consumption.</CardDescription>
               </CardHeader>
               <CardContent className="pt-6 space-y-6">
-                <div className="flex gap-4">
-                    <div className="bg-primary text-primary-foreground rounded-full size-8 flex items-center justify-center flex-shrink-0 font-bold shadow-sm">1</div>
+                <div className="flex gap-4 group">
+                    <div className="bg-primary text-primary-foreground rounded-full size-8 flex items-center justify-center flex-shrink-0 font-bold shadow-sm transition-transform group-hover:scale-110">1</div>
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
                             <Scale className="size-4 text-primary" />
@@ -200,8 +207,8 @@ export default function FertilizerInfoPage() {
                     </div>
                 </div>
                 
-                <div className="flex gap-4">
-                    <div className="bg-primary text-primary-foreground rounded-full size-8 flex items-center justify-center flex-shrink-0 font-bold shadow-sm">2</div>
+                <div className="flex gap-4 group">
+                    <div className="bg-primary text-primary-foreground rounded-full size-8 flex items-center justify-center flex-shrink-0 font-bold shadow-sm transition-transform group-hover:scale-110">2</div>
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
                             <FlaskConical className="size-4 text-primary" />
@@ -211,8 +218,8 @@ export default function FertilizerInfoPage() {
                     </div>
                 </div>
 
-                <div className="flex gap-4">
-                    <div className="bg-primary text-primary-foreground rounded-full size-8 flex items-center justify-center flex-shrink-0 font-bold shadow-sm">3</div>
+                <div className="flex gap-4 group">
+                    <div className="bg-primary text-primary-foreground rounded-full size-8 flex items-center justify-center flex-shrink-0 font-bold shadow-sm transition-transform group-hover:scale-110">3</div>
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
                             <Droplets className="size-4 text-primary" />
@@ -222,19 +229,19 @@ export default function FertilizerInfoPage() {
                     </div>
                 </div>
 
-                <div className="flex gap-4">
-                    <div className="bg-primary text-primary-foreground rounded-full size-8 flex items-center justify-center flex-shrink-0 font-bold shadow-sm">4</div>
+                <div className="flex gap-4 group">
+                    <div className="bg-primary text-primary-foreground rounded-full size-8 flex items-center justify-center flex-shrink-0 font-bold shadow-sm transition-transform group-hover:scale-110">4</div>
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
                             <Clock className="size-4 text-primary" />
-                            <p className="font-bold text-base">Step 4: Best Time to Apply / Storage</p>
+                            <p className="font-bold text-base">Step 4: Best Time to Use / Storage</p>
                         </div>
                         <p className="text-sm text-muted-foreground leading-relaxed">{productInfo.usageInstructions.bestTimeToApply}</p>
                     </div>
                 </div>
 
-                <div className="flex gap-4">
-                    <div className="bg-primary text-primary-foreground rounded-full size-8 flex items-center justify-center flex-shrink-0 font-bold shadow-sm">5</div>
+                <div className="flex gap-4 group">
+                    <div className="bg-primary text-primary-foreground rounded-full size-8 flex items-center justify-center flex-shrink-0 font-bold shadow-sm transition-transform group-hover:scale-110">5</div>
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
                             <ShieldCheck className="size-4 text-primary" />
