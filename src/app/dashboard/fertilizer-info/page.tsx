@@ -75,7 +75,7 @@ export default function FertilizerInfoPage() {
     setProductInfo(null);
 
     try {
-      // Direct call to Gemini AI for real-time identification, bypassing Firestore check
+      // Direct call to Gemini AI for real-time identification
       const info = await getFertilizerProductInfo({ barcode });
       setProductInfo(info);
     } catch (err: any) {
@@ -99,7 +99,7 @@ export default function FertilizerInfoPage() {
         <Card>
           <CardHeader>
             <CardTitle>Barcode Search</CardTitle>
-            <CardDescription>Scan a barcode or enter the number from the product packaging (EAN-13).</CardDescription>
+            <CardDescription>Scan an EAN-13 barcode or enter the number manually.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {isCameraOpen && (
@@ -136,7 +136,7 @@ export default function FertilizerInfoPage() {
               </div>
               <Button onClick={handleFetchProduct} disabled={loading} className="w-full">
                 {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Send className="mr-2 size-4" />}
-                {loading ? 'Identifying Product...' : 'Identify Product'}
+                {loading ? 'Searching...' : 'Identify Product'}
               </Button>
             </div>
           </CardContent>

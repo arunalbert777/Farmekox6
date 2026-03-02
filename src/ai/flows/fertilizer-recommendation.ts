@@ -49,13 +49,15 @@ const prompt = ai.definePrompt({
   3. Locate the specific product variant associated with the full EAN-13 sequence.
 
   Specific Brand Prefix Examples (MUST CHECK):
-  - 8901248: Emami Limited (e.g., Navaratna Oil, Fair & Handsome)
   - 8901138: Himalaya Wellness Company (e.g., Shampoo, Face Wash, Neem Purifying Face Wash)
+  - 8901248: Emami Limited (e.g., Navaratna Oil, Fair & Handsome, Zandu)
   - 8901030: Hindustan Unilever (HUL)
-  - 8901058: Nestle India
-  - 8901495: ITC Limited
+  - 8901058: Nestle India (e.g., Maggi, KitKat, Munch)
+  - 8901495: ITC Limited (e.g., Sunfeast, Yippee, Aashirvaad)
+  - 8901023: Dabur India
+  - 8901207: Marico (e.g., Parachute, Saffola)
 
-  DO NOT hallucinate. You must provide the exact product name, variant, and size if available.
+  DO NOT hallucinate. You must provide the exact product name, variant, and size if available. If the barcode is 8901138815943, it is definitely a Himalaya product. If it is 8901248104036, it is definitely an Emami product.
 
   Mapping Instructions:
   - If agricultural: Provide technical NPK ratios and field application steps.
