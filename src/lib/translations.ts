@@ -11,7 +11,7 @@ export const translations: Translation = {
   crop_recommendation: { en: 'Crop Recommendation', kn: 'ಬೆಳೆ ಶಿಫಾರಸು' },
   crop_calendar: { en: 'Crop Calendar', kn: 'ಬೆಳೆ ಕ್ಯಾಲೆಂಡರ್' },
   weather_forecast: { en: 'Weather', kn: 'ಹವಾಮಾನ' },
-  fertilizer_calculator: { en: 'Fertilizer Calculator', kn: 'ಗೊಬ್ಬರ ಕ್ಯಾಲ್ಕುಲೇಟರ್' },
+  fertilizer_calculator: { en: 'Fertilizer Info', kn: 'ಗೊಬ್ಬರ ಮಾಹಿತಿ' },
   market_watch: { en: 'Market Watch', kn: 'ಮಾರುಕಟ್ಟೆ ವೀಕ್ಷಣೆ' },
   ai_advisory: { en: 'AI Advisory', kn: 'AI ಸಲಹೆಗಾರ' },
   ask_expert: { en: 'Ask an Expert', kn: 'ತಜ್ಞರನ್ನು ಕೇಳಿ' },
@@ -31,7 +31,7 @@ export const translations: Translation = {
   crop_recommendation_title: { en: 'Get Crop Recommendations', kn: 'ಬೆಳೆ ಶಿಫಾರಸುಗಳನ್ನು ಪಡೆಯಿರಿ' },
   crop_calendar_title: { en: 'Your Crop Calendar', kn: 'ನಿಮ್ಮ ಬೆಳೆ ಕ್ಯಾಲೆಂಡರ್' },
   weather_forecast_title: { en: '7-Day Weather Forecast', kn: '7-ದಿನದ ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ' },
-  fertilizer_calculator_title: { en: 'Fertilizer Dose Calculator', kn: 'ಗೊಬ್ಬರದ ಡೋಸ್ ಕ್ಯಾಲ್ಕುಲೇಟರ್' },
+  fertilizer_calculator_title: { en: 'Fertilizer Info System', kn: 'ಗೊಬ್ಬರ ಮಾಹಿತಿ ವ್ಯವಸ್ಥೆ' },
   market_watch_title: { en: 'News and Mandi Prices', kn: 'ಸುದ್ದಿ ಮತ್ತು ಮಂಡಿ ಬೆಲೆಗಳು' },
   ai_advisory_title: { en: 'AI Voice & Chat Advisory', kn: 'AI ಧ್ವನಿ ಮತ್ತು ಚಾಟ್ ಸಲಹೆ' },
   ask_expert_title: { en: 'Connect with an Expert', kn: 'ತಜ್ಞರೊಂದಿಗೆ ಸಂಪರ್ಕ ಸಾಧಿಸಿ' },
@@ -77,4 +77,12 @@ export const translations: Translation = {
   // Direct Sales
   direct_sales_description: { en: 'Buy fresh produce directly from local farmers.', kn: 'ಸ್ಥಳೀಯ ರೈತರಿಂದ ನೇರವಾಗಿ ತಾಜಾ ಉತ್ಪನ್ನಗಳನ್ನು ಖರೀದಿಸಿ.' },
   buy_now: { en: 'Buy Now', kn: 'ಈಗ ಖರೀದಿಸಿ' },
+
+  // Fertilizer Info Specific
+  soil_type: { en: 'Soil Type', kn: 'ಮಣ್ಣಿನ ಪ್ರಕಾರ' },
+  farm_size: { en: 'Farm Size (Acres)', kn: 'ಫಾರ್ಮ್ ಗಾತ್ರ (ಎಕರೆ)' },
+  get_ai_advice: { en: 'Get AI Personalized Advice', kn: 'AI ವೈಯಕ್ತಿಕ ಸಲಹೆ ಪಡೆಯಿರಿ' },
+  product_name: { en: 'Product Name', kn: 'ಉತ್ಪನ್ನದ ಹೆಸರು' },
+  brand_name: { en: 'Brand Name', kn: 'ಬ್ರಾಂಡ್ ಹೆಸರು' },
+  npk_composition: { en: 'NPK Composition', kn: 'NPK ಸಂಯೋಜನೆ' },
 };

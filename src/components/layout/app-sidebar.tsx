@@ -68,7 +68,6 @@ export function AppSidebar() {
         ))}
       </SidebarMenu>
       <SidebarFooter>
-        {/* Can add user profile or settings here */}
       </SidebarFooter>
     </Sidebar>
   );
