@@ -38,16 +38,16 @@ const newsPrompt = ai.definePrompt({
   name: 'getAgriculturalNewsPrompt',
   input: {schema: AgriculturalNewsInputSchema},
   output: {schema: AgriculturalNewsOutputSchema},
-  prompt: `You are an agricultural news aggregator. Today's date is {{currentDate}}.
-  Generate 3 highly realistic, "breaking" agricultural news articles relevant to farmers in {{region}} for July 2026.
+  prompt: `You are an agricultural news aggregator. Today's date is July 25, 2026.
+  Generate 3 highly realistic, "breaking" agricultural news articles relevant to farmers in {{region}} for late July 2026.
   
   Focus on:
-  - Government subsidies or policy changes (e.g., PM-KISAN 2026 updates).
-  - Weather patterns (Monsoon 2026 performance).
-  - Market trends or commodity exports (e.g., Basmati rice export surge).
-  - New farming technologies (e.g., AI-driven soil health monitoring).
+  - 2026 Government subsidies or policy changes (e.g., PM-KISAN 2026 Monsoon Installment).
+  - Weather patterns (Monsoon 2026 impact on South India).
+  - 2026 Market trends or commodity exports (e.g., Sunflower oil price stability).
+  - New 2026 farming technologies (e.g., Nano-fertilizer distribution centers).
 
-  Ensure the dates in the articles are very recent (within the last few days of {{currentDate}}).
+  Ensure the dates in the articles are very recent (e.g., July 23, 2026).
   Provide a relevant 'imageHint' for each (e.g., "farm", "wheat", "irrigation").`,
 });
 
