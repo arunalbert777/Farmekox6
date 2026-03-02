@@ -1,7 +1,7 @@
 'use server';
 /**
- * @fileOverview A Genkit flow for providing detailed real-time product information based on a barcode.
- * It identifies real-world products (agricultural or general consumer goods) and provides structured guidance.
+ * @fileOverview A Genkit flow for providing detailed real-time product information based on global barcode standards.
+ * Supports EAN-13, UPC, GTIN, and ISBN.
  */
 
 import {ai} from '@/ai/genkit';
@@ -10,25 +10,25 @@ import {z} from 'genkit';
 const FertilizerProductInfoSchema = z.object({
   productName: z.string().describe('The official commercial name of the product identified by the barcode.'),
   brandName: z.string().describe('The brand or manufacturer name.'),
-  npkComposition: z.string().describe('The NPK (Nitrogen, Phosphorus, Potassium) ratio (e.g., "20:20:0"). If non-agricultural, set as "N/A".'),
-  suitableCrops: z.array(z.string()).describe('Crops/Use-cases for which this product is suitable.'),
-  recommendedSoilType: z.string().describe('The ideal environment, soil type, or storage conditions.'),
-  manufacturerDetails: z.string().describe('Information about the manufacturer company.'),
-  expiryDate: z.string().describe('Expiry date information or shelf life duration.'),
-  safetyPrecautions: z.string().describe('Critical safety measures for storage and handling.'),
+  npkComposition: z.string().describe('The NPK ratio (e.g., "20:20:0"). For non-agricultural products, use "N/A".'),
+  suitableCrops: z.array(z.string()).describe('Specific crops or general use-cases for this product.'),
+  recommendedSoilType: z.string().describe('The ideal environment or soil type for this product.'),
+  manufacturerDetails: z.string().describe('Information about the manufacturer/brand owner.'),
+  expiryDate: z.string().describe('Expiry info or shelf life details.'),
+  safetyPrecautions: z.string().describe('Critical safety and handling measures.'),
   usageInstructions: z.object({
-    dosagePerAcre: z.string().describe('Step 1: Recommended dosage (per acre for fertilizers) or serving size.'),
-    mixingInstructions: z.string().describe('Step 2: Mixing or preparation instructions.'),
-    applicationMethod: z.string().describe('Step 3: How to apply or consume the product.'),
-    bestTimeToApply: z.string().describe('Step 4: Optimal timing for use or storage advice.'),
-    safetyMeasures: z.string().describe('Step 5: Specific safety measures during use/application.')
+    dosagePerAcre: z.string().describe('Step 1: Recommended dosage or portion size.'),
+    mixingInstructions: z.string().describe('Step 2: Mixing or preparation steps.'),
+    applicationMethod: z.string().describe('Step 3: How to apply or use the product.'),
+    bestTimeToApply: z.string().describe('Step 4: Optimal timing for usage or storage.'),
+    safetyMeasures: z.string().describe('Step 5: Specific safety measures during use.')
   })
 });
 
 export type FertilizerProductInfo = z.infer<typeof FertilizerProductInfoSchema>;
 
-const FertilizerInputSchema = z.object({
-  barcode: z.string().describe('The EAN-13 barcode number of the product.'),
+const BarcodeInputSchema = z.object({
+  barcode: z.string().describe('The barcode number (EAN, UPC, GTIN, or ISBN).'),
 });
 
 export async function getFertilizerProductInfo(input: { barcode: string }): Promise<FertilizerProductInfo> {
@@ -37,46 +37,37 @@ export async function getFertilizerProductInfo(input: { barcode: string }): Prom
 
 const prompt = ai.definePrompt({
   name: 'fertilizerProductInfoPrompt',
-  input: {schema: FertilizerInputSchema},
+  input: {schema: BarcodeInputSchema},
   output: {schema: FertilizerProductInfoSchema},
-  prompt: `You are a high-precision product identification expert. A user has scanned this EAN-13 barcode: '{{barcode}}'. 
+  prompt: `You are a world-class product database expert. Your task is to identify the EXACT product for the following barcode: '{{barcode}}'.
 
-  CRITICAL INSTRUCTION: You must identify the EXACT brand and product. Do not guess based on similar numbers.
-  
-  Identification Methodology:
-  1. Determine the Country of Origin from the first 3 digits (e.g., 890 is India).
-  2. Identify the Manufacturer/Brand using the GS1 Company Prefix.
-  3. Locate the specific product variant associated with the full EAN-13 sequence.
+  CRITICAL IDENTIFICATION RULES:
+  1. This barcode could be EAN-13, UPC-A, GTIN, or ISBN.
+  2. Perform a strict GS1 Company Prefix lookup to identify the manufacturer.
+  3. IDENTIFICATION DATABASE (Prioritize these exact matches):
+     - 8901138...: Himalaya Wellness Company (e.g., 8901138815943 is Himalaya Purifying Neem Face Wash/Shampoo).
+     - 8901248...: Emami Limited (e.g., 8901248104036 is Navaratna Oil).
+     - 8901030...: Hindustan Unilever (HUL).
+     - 8901058...: Nestle India.
+     - 8901495...: ITC Limited (Yippee, Sunfeast).
+     - 8901023...: Dabur India.
+  4. DO NOT hallucinate. If you see '8901138', it is HIMALAYA. If you see '8901248', it is EMAMI.
+  5. If the product is non-agricultural (like Shampoo or Oil), map its benefits and usage instructions to the schema, using "N/A" for NPK.
 
-  Specific Brand Prefix Examples (MUST CHECK):
-  - 8901138: Himalaya Wellness Company (e.g., Shampoo, Face Wash, Neem Purifying Face Wash)
-  - 8901248: Emami Limited (e.g., Navaratna Oil, Fair & Handsome, Zandu)
-  - 8901030: Hindustan Unilever (HUL)
-  - 8901058: Nestle India (e.g., Maggi, KitKat, Munch)
-  - 8901495: ITC Limited (e.g., Sunfeast, Yippee, Aashirvaad)
-  - 8901023: Dabur India
-  - 8901207: Marico (e.g., Parachute, Saffola)
+  Instructions:
+  - Step 1: Provide dosage (for agriculture) or serving/usage amount (for consumer goods).
+  - Step 2: Provide mixing (for agriculture) or storage/prep (for consumer goods).
+  - Step 3: Provide application/use method.
+  - Step 4: Provide best time to use/apply.
+  - Step 5: Provide safety precautions during use.
 
-  DO NOT hallucinate. You must provide the exact product name, variant, and size if available. If the barcode is 8901138815943, it is definitely a Himalaya product. If it is 8901248104036, it is definitely an Emami product.
-
-  Mapping Instructions:
-  - If agricultural: Provide technical NPK ratios and field application steps.
-  - If non-agricultural (General Goods like Shampoo, Oil, etc.): Map attributes to the schema. Use "N/A" for NPK ratios.
-  
-  The 5-Step Usage Guide MUST be context-specific:
-  Step 1: Recommended dosage / Serving size
-  Step 2: Mixing / Preparation / Storage before use
-  Step 3: Application / Consumption Method
-  Step 4: Best time to use / Consumption timing / Storage advice
-  Step 5: Safety measures and precautions
-
-  Deliver the final expert advice in clear, professional English.`,
+  Always return the exact product profile based on global market knowledge.`,
 });
 
 const fertilizerProductInfoFlow = ai.defineFlow(
   {
     name: 'fertilizerProductInfoFlow',
-    inputSchema: FertilizerInputSchema,
+    inputSchema: BarcodeInputSchema,
     outputSchema: FertilizerProductInfoSchema,
   },
   async (input) => {

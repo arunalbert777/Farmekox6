@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Info, Loader2, Camera, Send, AlertCircle, CheckCircle2, FlaskConical, Droplets, Clock, ShieldCheck, Scale } from "lucide-react";
+import { Info, Loader2, Camera, Send, AlertCircle, CheckCircle2, FlaskConical, Droplets, Clock, ShieldCheck, Scale, X } from "lucide-react";
 import { useLanguage } from "@/lib/hooks";
 import { getFertilizerProductInfo, type FertilizerProductInfo } from "@/ai/flows/fertilizer-recommendation";
 import { useToast } from "@/hooks/use-toast";
@@ -63,21 +63,20 @@ export default function FertilizerInfoPage() {
   }
 
   const handleFetchProduct = async () => {
-    if (!barcode) {
+    const trimmedBarcode = barcode.trim();
+    if (!trimmedBarcode) {
         toast({ variant: "destructive", title: "Missing Input", description: "Please enter a barcode number." });
         return;
     }
-    if (!user) {
-        toast({ variant: "destructive", title: "Authenticating", description: "Please wait a moment while we establish your session." });
-        return;
-    }
+    
     setLoading(true);
     setProductInfo(null);
 
     try {
       // Direct call to Gemini AI for real-time identification
-      const info = await getFertilizerProductInfo({ barcode });
+      const info = await getFertilizerProductInfo({ barcode: trimmedBarcode });
       setProductInfo(info);
+      setIsCameraOpen(false); // Close camera on success
     } catch (err: any) {
       toast({ variant: "destructive", title: "Identification Error", description: "Could not identify this barcode. Please ensure the number is correct." });
     } finally {
@@ -92,22 +91,30 @@ export default function FertilizerInfoPage() {
           <Info className="size-8 text-primary" />
         </div>
         <h1 className="font-headline text-3xl mt-4">{t("fertilizer_info_title")}</h1>
-        <p className="text-muted-foreground">Identify any product via EAN-13 barcode and get expert usage steps.</p>
+        <p className="text-muted-foreground">Identify any product via EAN, UPC, GTIN, or ISBN and get expert instructions.</p>
       </div>
 
       <div className="grid gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Barcode Search</CardTitle>
-            <CardDescription>Scan an EAN-13 barcode or enter the number manually.</CardDescription>
+            <CardDescription>Scan a barcode or enter the code manually to get real-time info.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {isCameraOpen && (
-              <div className="space-y-2 relative">
-                  <video ref={videoRef} className="w-full aspect-video rounded-md bg-muted object-cover" autoPlay muted playsInline />
+              <div className="space-y-2 relative group">
+                  <video ref={videoRef} className="w-full aspect-video rounded-md bg-black object-cover" autoPlay muted playsInline />
                   <div className="absolute inset-0 border-2 border-primary/50 rounded-md pointer-events-none flex items-center justify-center">
-                      <div className="w-3/4 h-1 bg-primary/30 animate-pulse" />
+                      <div className="w-3/4 h-0.5 bg-primary/40 animate-pulse shadow-[0_0_10px_rgba(var(--primary),0.5)]" />
                   </div>
+                  <Button 
+                    variant="destructive" 
+                    size="icon" 
+                    className="absolute top-2 right-2 rounded-full shadow-lg"
+                    onClick={handleToggleCamera}
+                  >
+                    <X className="size-4" />
+                  </Button>
                   {hasCameraPermission === false && (
                       <Alert variant="destructive">
                           <AlertTitle>Camera Access Required</AlertTitle>
@@ -119,7 +126,7 @@ export default function FertilizerInfoPage() {
 
             <div className="flex flex-col gap-4">
               <div className="flex-1 space-y-2">
-                <Label htmlFor="barcode">{t("barcode_number")}</Label>
+                <Label htmlFor="barcode">Barcode Number (EAN, UPC, GTIN, ISBN)</Label>
                 <div className="flex gap-2">
                     <Input
                         id="barcode"
@@ -129,14 +136,14 @@ export default function FertilizerInfoPage() {
                         className="flex-1"
                         onKeyDown={(e) => e.key === 'Enter' && handleFetchProduct()}
                     />
-                    <Button onClick={handleToggleCamera} variant="outline" size="icon">
+                    <Button onClick={handleToggleCamera} variant={isCameraOpen ? "secondary" : "outline"} size="icon">
                         <Camera className="size-5" />
                     </Button>
                 </div>
               </div>
               <Button onClick={handleFetchProduct} disabled={loading} className="w-full">
                 {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Send className="mr-2 size-4" />}
-                {loading ? 'Searching...' : 'Identify Product'}
+                {loading ? 'Identifying Product...' : 'Identify Product'}
               </Button>
             </div>
           </CardContent>
@@ -163,7 +170,7 @@ export default function FertilizerInfoPage() {
                         <p className="font-medium">{productInfo.expiryDate}</p>
                     </div>
                     <div>
-                        <Label className="text-xs uppercase text-muted-foreground font-bold">Suitable Usage / Crops</Label>
+                        <Label className="text-xs uppercase text-muted-foreground font-bold">Suitable Crops / Use</Label>
                         <div className="flex flex-wrap gap-1 mt-1">
                             {productInfo.suitableCrops.map(c => (
                                 <span key={c} className="bg-primary/10 text-primary-foreground text-primary px-2 py-0.5 rounded text-xs border border-primary/20">{c}</span>
@@ -192,8 +199,8 @@ export default function FertilizerInfoPage() {
 
             <Card className="border-accent/30 shadow-md">
               <CardHeader className="bg-accent/5 border-b">
-                <CardTitle className="text-xl">Step-by-Step Usage Instructions</CardTitle>
-                <CardDescription>Expert guide for effective application or consumption.</CardDescription>
+                <CardTitle className="text-xl">5-Step Usage Guide</CardTitle>
+                <CardDescription>Expert instructions tailored to this product.</CardDescription>
               </CardHeader>
               <CardContent className="pt-6 space-y-6">
                 <div className="flex gap-4 group">
@@ -201,7 +208,7 @@ export default function FertilizerInfoPage() {
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
                             <Scale className="size-4 text-primary" />
-                            <p className="font-bold text-base">Step 1: Recommended Dosage / Serving</p>
+                            <p className="font-bold text-base text-foreground">Step 1: Dosage / Portion</p>
                         </div>
                         <p className="text-sm text-muted-foreground leading-relaxed">{productInfo.usageInstructions.dosagePerAcre}</p>
                     </div>
@@ -212,7 +219,7 @@ export default function FertilizerInfoPage() {
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
                             <FlaskConical className="size-4 text-primary" />
-                            <p className="font-bold text-base">Step 2: Mixing / Preparation</p>
+                            <p className="font-bold text-base text-foreground">Step 2: Mixing / Preparation</p>
                         </div>
                         <p className="text-sm text-muted-foreground leading-relaxed">{productInfo.usageInstructions.mixingInstructions}</p>
                     </div>
@@ -223,7 +230,7 @@ export default function FertilizerInfoPage() {
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
                             <Droplets className="size-4 text-primary" />
-                            <p className="font-bold text-base">Step 3: Application / Consumption Method</p>
+                            <p className="font-bold text-base text-foreground">Step 3: Application Method</p>
                         </div>
                         <p className="text-sm text-muted-foreground leading-relaxed">{productInfo.usageInstructions.applicationMethod}</p>
                     </div>
@@ -234,7 +241,7 @@ export default function FertilizerInfoPage() {
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
                             <Clock className="size-4 text-primary" />
-                            <p className="font-bold text-base">Step 4: Best Time to Use / Storage</p>
+                            <p className="font-bold text-base text-foreground">Step 4: Best Time to Use</p>
                         </div>
                         <p className="text-sm text-muted-foreground leading-relaxed">{productInfo.usageInstructions.bestTimeToApply}</p>
                     </div>
@@ -245,7 +252,7 @@ export default function FertilizerInfoPage() {
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
                             <ShieldCheck className="size-4 text-primary" />
-                            <p className="font-bold text-base">Step 5: Safety Measures</p>
+                            <p className="font-bold text-base text-foreground">Step 5: Safety During Use</p>
                         </div>
                         <p className="text-sm text-muted-foreground leading-relaxed">{productInfo.usageInstructions.safetyMeasures}</p>
                     </div>
