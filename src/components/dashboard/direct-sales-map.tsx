@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { PlaceHolderImages, type ImagePlaceholder } from "@/lib/placeholder-images";
 import Image from "next/image";
 import { useLanguage } from "@/lib/hooks";
@@ -58,10 +58,16 @@ export function DirectSalesMap({ apiKey }: { apiKey: string }) {
   const [newProductName, setNewProductName] = useState('');
   const [newProductPrice, setNewProductPrice] = useState('');
 
-  const handleMapClick = (e: google.maps.MapMouseEvent) => {
-      if (!isSelectingLocation || !e.latLng) return;
+  const handleMapClick = (e: any) => {
+      // Check for e.detail.latLng or e.latLng depending on library version
+      const latLng = e.detail?.latLng || e.latLng;
+      if (!isSelectingLocation || !latLng) return;
       
-      const clickedPos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+      const clickedPos = { 
+        lat: typeof latLng.lat === 'function' ? latLng.lat() : latLng.lat, 
+        lng: typeof latLng.lng === 'function' ? latLng.lng() : latLng.lng 
+      };
+      
       setTempPosition(clickedPos);
       setIsSelectingLocation(false);
       setIsDialogOpen(true);
@@ -93,10 +99,10 @@ export function DirectSalesMap({ apiKey }: { apiKey: string }) {
   return (
     <APIProvider apiKey={apiKey}>
         <div className="w-full h-full relative">
-            {/* Selection Mode Instructions Overlay */}
+            {/* Selection Mode Instructions Overlay - pointer-events-none ensures clicks pass through the container */}
             {isSelectingLocation && (
-                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 w-full max-w-sm px-4">
-                    <div className="bg-primary text-primary-foreground p-3 rounded-lg shadow-2xl border-2 border-primary-foreground/20 flex items-center justify-between animate-in slide-in-from-top-4 duration-300">
+                <div className="absolute top-4 inset-x-0 z-20 flex justify-center pointer-events-none px-4">
+                    <div className="bg-primary text-primary-foreground p-3 rounded-lg shadow-2xl border-2 border-primary-foreground/20 flex items-center justify-between pointer-events-auto animate-in slide-in-from-top-4 duration-300 w-full max-w-sm">
                         <div className="flex items-center gap-2">
                             <MapPin className="size-5 animate-bounce" />
                             <span className="text-sm font-bold">Click on the map to place your pin</span>
@@ -116,7 +122,7 @@ export function DirectSalesMap({ apiKey }: { apiKey: string }) {
                 gestureHandling={'greedy'}
                 disableDefaultUI={true}
                 onClick={handleMapClick}
-                cursor={isSelectingLocation ? 'crosshair' : 'default'}
+                clickableIcons={false}
             >
                 {products.map((product) => (
                 <AdvancedMarker
