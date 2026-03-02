@@ -14,7 +14,7 @@ import {
   Leaf,
   Calendar,
   CloudSun,
-  Calculator,
+  Info,
   LineChart,
   BotMessageSquare,
   UserSquare,
@@ -31,7 +31,7 @@ const navItems = [
   { href: "/dashboard/crop-recommendation", icon: Leaf, label: "crop_recommendation" },
   { href: "/dashboard/crop-calendar", icon: Calendar, label: "crop_calendar" },
   { href: "/dashboard/weather", icon: CloudSun, label: "weather_forecast" },
-  { href: "/dashboard/fertilizer-calculator", icon: Calculator, label: "fertilizer_calculator" },
+  { href: "/dashboard/fertilizer-info", icon: Info, label: "fertilizer_info" },
   { href: "/dashboard/market-watch", icon: LineChart, label: "market_watch" },
   { href: "/dashboard/ai-advisory", icon: BotMessageSquare, label: "ai_advisory" },
   { href: "/dashboard/ask-expert", icon: UserSquare, label: "ask_expert" },
@@ -60,7 +60,7 @@ export function AppSidebar() {
               <SidebarMenuButton
                 asChild
                 isActive={pathname === item.href}
-                tooltip={t(item.label as any)}
+                tooltip={{ children: t(item.label as any) }}
               >
                 <Link href={item.href}>
                   <item.icon />

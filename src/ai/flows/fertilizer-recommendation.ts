@@ -28,7 +28,7 @@ const FertilizerProductInfoSchema = z.object({
 export type FertilizerProductInfo = z.infer<typeof FertilizerProductInfoSchema>;
 
 const FertilizerInputSchema = z.object({
-  barcode: z.string().describe('The barcode number of the product.'),
+  barcode: z.string().describe('The EAN-13 barcode number of the product.'),
 });
 
 export async function getFertilizerProductInfo(input: { barcode: string }): Promise<FertilizerProductInfo> {
@@ -39,26 +39,27 @@ const prompt = ai.definePrompt({
   name: 'fertilizerProductInfoPrompt',
   input: {schema: FertilizerInputSchema},
   output: {schema: FertilizerProductInfoSchema},
-  prompt: `You are a high-precision product identification expert. A user has scanned this EAN-13/UPC barcode: '{{barcode}}'. 
+  prompt: `You are a high-precision product identification expert. A user has scanned this EAN-13 barcode: '{{barcode}}'. 
 
   CRITICAL INSTRUCTION: You must identify the EXACT brand and product. Do not guess based on similar numbers.
   
   Identification Methodology:
   1. Determine the Country of Origin from the first 3 digits (e.g., 890 is India).
   2. Identify the Manufacturer/Brand using the GS1 Company Prefix.
-  3. Locate the specific product variant associated with the full sequence.
+  3. Locate the specific product variant associated with the full EAN-13 sequence.
 
-  Specific Brand Calibrations:
-  - 8901248: Emami (e.g., Navaratna Oil)
-  - 8901138: Himalaya Wellness (e.g., Shampoo, Face Wash)
+  Specific Brand Prefix Examples (MUST CHECK):
+  - 8901248: Emami Limited (e.g., Navaratna Oil, Fair & Handsome)
+  - 8901138: Himalaya Wellness Company (e.g., Shampoo, Face Wash, Neem Purifying Face Wash)
   - 8901030: Hindustan Unilever (HUL)
-  - 8901058: Nestle India (e.g., Maggi, KitKat)
+  - 8901058: Nestle India
+  - 8901495: ITC Limited
 
   DO NOT hallucinate. You must provide the exact product name, variant, and size if available.
 
   Mapping Instructions:
   - If agricultural: Provide technical NPK ratios and field application steps.
-  - If non-agricultural (General Goods): Map attributes to the schema. Use "N/A" for NPK ratios.
+  - If non-agricultural (General Goods like Shampoo, Oil, etc.): Map attributes to the schema. Use "N/A" for NPK ratios.
   
   The 5-Step Usage Guide MUST be context-specific:
   Step 1: Recommended dosage / Serving size

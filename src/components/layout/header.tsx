@@ -3,7 +3,6 @@
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/lib/hooks";
-import { translations } from "@/lib/translations";
 import { usePathname } from "next/navigation";
 import {
   DropdownMenu,
@@ -14,7 +13,7 @@ import {
 import { Languages, User } from "lucide-react";
 
 export function Header() {
-  const { language, toggleLanguage, t } = useLanguage();
+  const { toggleLanguage, t } = useLanguage();
   const pathname = usePathname();
 
   const getPageTitle = () => {
@@ -27,8 +26,8 @@ export function Header() {
         return t("crop_calendar_title");
       case "/dashboard/weather":
         return t("weather_forecast_title");
-      case "/dashboard/fertilizer-calculator":
-        return t("fertilizer_calculator_title");
+      case "/dashboard/fertilizer-info":
+        return t("fertilizer_info_title");
       case "/dashboard/market-watch":
         return t("market_watch_title");
       case "/dashboard/ai-advisory":
