@@ -45,12 +45,14 @@ const prompt = ai.definePrompt({
   
   Identification Methodology:
   1. Determine the Country of Origin from the first 3 digits (e.g., 890 is India).
-  2. Identify the Manufacturer/Brand using the GS1 Company Prefix (e.g., 8901248 = Emami, 8901138 = Himalaya Wellness, 8901030 = HUL, 8901058 = Nestle India).
-  3. Locate the specific product variant (e.g., Navaratna Oil 100ml, Himalaya Neem Face Wash 150ml) associated with the full sequence.
+  2. Identify the Manufacturer/Brand using the GS1 Company Prefix.
+  3. Locate the specific product variant associated with the full sequence.
 
-  Example Knowledge:
-  - If barcode is '8901248104036', it is Navaratna Oil (Emami), NOT KitKat.
-  - If barcode is '8901138815943', it is Himalaya Shampoo, NOT Sunfeast.
+  Specific Brand Calibrations:
+  - 8901248: Emami (e.g., Navaratna Oil)
+  - 8901138: Himalaya Wellness (e.g., Shampoo, Face Wash)
+  - 8901030: Hindustan Unilever (HUL)
+  - 8901058: Nestle India (e.g., Maggi, KitKat)
 
   DO NOT hallucinate. You must provide the exact product name, variant, and size if available.
 

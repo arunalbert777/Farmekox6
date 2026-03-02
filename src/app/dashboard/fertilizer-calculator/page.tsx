@@ -75,7 +75,7 @@ export default function FertilizerInfoPage() {
     setProductInfo(null);
 
     try {
-      // Direct call to Gemini AI for real-time identification
+      // Direct call to Gemini AI for real-time identification, bypassing Firestore check
       const info = await getFertilizerProductInfo({ barcode });
       setProductInfo(info);
     } catch (err: any) {
