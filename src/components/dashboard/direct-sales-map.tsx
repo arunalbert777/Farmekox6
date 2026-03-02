@@ -1,3 +1,4 @@
+
 "use client";
 
 import { APIProvider, Map, AdvancedMarker } from "@vis.gl/react-google-maps";
@@ -16,7 +17,6 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
     DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -25,7 +25,7 @@ import { useState, useEffect } from "react";
 import { PlaceHolderImages, type ImagePlaceholder } from "@/lib/placeholder-images";
 import Image from "next/image";
 import { useLanguage } from "@/lib/hooks";
-import { ShoppingCart, Plus, Pin, Loader2 } from "lucide-react";
+import { ShoppingCart, Plus, Pin, X, MapPin } from "lucide-react";
 
 type Product = {
   id: number;
@@ -49,47 +49,65 @@ export function DirectSalesMap({ apiKey }: { apiKey: string }) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const position = { lat: 12.9716, lng: 77.5946 }; // Bengaluru
   
-  // State for adding a new product
+  // Selection Mode State
+  const [isSelectingLocation, setIsSelectingLocation] = useState(false);
+  const [tempPosition, setTempPosition] = useState<{lat: number, lng: number} | null>(null);
+  
+  // Dialog State
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newProductName, setNewProductName] = useState('');
   const [newProductPrice, setNewProductPrice] = useState('');
-  const [newProductPosition, setNewProductPosition] = useState<{lat: number, lng: number} | null>(null);
-  const [isSelectingLocation, setIsSelectingLocation] = useState(false);
-
-  useEffect(() => {
-      // Reset form when dialog is closed
-      if (!isDialogOpen) {
-          setNewProductName('');
-          setNewProductPrice('');
-          setNewProductPosition(null);
-          setIsSelectingLocation(false);
-      }
-  }, [isDialogOpen]);
 
   const handleMapClick = (e: google.maps.MapMouseEvent) => {
       if (!isSelectingLocation || !e.latLng) return;
-      setNewProductPosition({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+      
+      const clickedPos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+      setTempPosition(clickedPos);
       setIsSelectingLocation(false);
+      setIsDialogOpen(true);
   }
 
   const handleAddProduct = () => {
-      if (newProductName && newProductPrice && newProductPosition) {
+      if (newProductName && newProductPrice && tempPosition) {
           const newProduct: Product = {
               id: Date.now(),
               name: newProductName,
               price: newProductPrice,
-              position: newProductPosition,
+              position: tempPosition,
               farmer: "You", // Placeholder for current user
               image: undefined,
           };
           setProducts(prev => [...prev, newProduct]);
           setIsDialogOpen(false);
+          setNewProductName('');
+          setNewProductPrice('');
+          setTempPosition(null);
       }
   };
+
+  const cancelSelection = () => {
+      setIsSelectingLocation(false);
+      setTempPosition(null);
+  }
 
   return (
     <APIProvider apiKey={apiKey}>
         <div className="w-full h-full relative">
+            {/* Selection Mode Instructions Overlay */}
+            {isSelectingLocation && (
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 w-full max-w-sm px-4">
+                    <div className="bg-primary text-primary-foreground p-3 rounded-lg shadow-2xl border-2 border-primary-foreground/20 flex items-center justify-between animate-in slide-in-from-top-4 duration-300">
+                        <div className="flex items-center gap-2">
+                            <MapPin className="size-5 animate-bounce" />
+                            <span className="text-sm font-bold">Click on the map to place your pin</span>
+                        </div>
+                        <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10" onClick={cancelSelection}>
+                            <X className="size-4" />
+                        </Button>
+                    </div>
+                </div>
+            )}
+
             <Map
                 defaultCenter={position}
                 defaultZoom={13}
@@ -107,7 +125,7 @@ export function DirectSalesMap({ apiKey }: { apiKey: string }) {
                     onClick={() => setSelectedProduct(product)}
                 >
                     <div
-                    className="w-8 h-8 rounded-full border-2 border-white bg-primary text-primary-foreground flex items-center justify-center cursor-pointer"
+                    className="w-8 h-8 rounded-full border-2 border-white bg-primary text-primary-foreground flex items-center justify-center cursor-pointer shadow-lg hover:scale-110 transition-transform"
                     title={`${product.name} - ${product.price}`}
                     >
                         <ShoppingCart className="size-4"/>
@@ -116,53 +134,64 @@ export function DirectSalesMap({ apiKey }: { apiKey: string }) {
                 ))}
             </Map>
             
+            {/* Trigger Button - Floating Action Button style */}
+            {!isSelectingLocation && (
+                <Button 
+                    size="icon" 
+                    className="absolute bottom-6 right-6 rounded-full h-16 w-16 shadow-2xl z-10 border-4 border-background"
+                    onClick={() => setIsSelectingLocation(true)}
+                >
+                    <Plus className="size-8" />
+                    <span className="sr-only">Add Product</span>
+                </Button>
+            )}
+
+            {/* Product Details Dialog */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild>
-                    <Button size="icon" className="absolute bottom-4 right-4 rounded-full h-14 w-14 shadow-lg z-10">
-                        <Plus className="size-6" />
-                        <span className="sr-only">Add Product</span>
-                    </Button>
-                </DialogTrigger>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Add a New Product Pin</DialogTitle>
+                        <DialogTitle>Product Details</DialogTitle>
                         <DialogDescription>
-                            Fill in the product details, then place a pin on the map.
+                            Tell us what you are selling and its price.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
                             <Label htmlFor="name">Product Name</Label>
-                            <Input id="name" value={newProductName} onChange={e => setNewProductName(e.target.value)} placeholder="e.g., Fresh Carrots" />
+                            <Input 
+                                id="name" 
+                                value={newProductName} 
+                                onChange={e => setNewProductName(e.target.value)} 
+                                placeholder="e.g., Fresh Carrots" 
+                                autoFocus
+                            />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="price">Price</Label>
-                            <Input id="price" value={newProductPrice} onChange={e => setNewProductPrice(e.target.value)} placeholder="e.g., ₹50/kg" />
+                            <Input 
+                                id="price" 
+                                value={newProductPrice} 
+                                onChange={e => setNewProductPrice(e.target.value)} 
+                                placeholder="e.g., ₹50/kg" 
+                            />
                         </div>
                         <div className="space-y-2">
-                            <Label>Location</Label>
-                            {newProductPosition ? (
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground p-2 border rounded-md bg-secondary/50">
+                            <Label>Selected Location</Label>
+                            {tempPosition && (
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground p-3 border rounded-md bg-secondary/50">
                                     <Pin className="size-4 text-primary" />
-                                    <span>{newProductPosition.lat.toFixed(4)}, {newProductPosition.lng.toFixed(4)}</span>
-                                    <Button variant="link" className="p-0 h-auto ml-auto" onClick={() => { setNewProductPosition(null); setIsSelectingLocation(true); }}>Change</Button>
+                                    <span className="font-mono">
+                                        {tempPosition.lat.toFixed(6)}, {tempPosition.lng.toFixed(6)}
+                                    </span>
                                 </div>
-                            ) : (
-                                <Button variant="outline" className="w-full" onClick={() => setIsSelectingLocation(true)} disabled={isSelectingLocation}>
-                                    {isSelectingLocation ? (
-                                        <>
-                                            <Loader2 className="mr-2 size-4 animate-spin" />
-                                            Click on the map to place your pin...
-                                        </>
-                                    ) : (
-                                        'Select Location on Map'
-                                    )}
-                                </Button>
                             )}
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="button" onClick={handleAddProduct} disabled={!newProductName || !newProductPrice || !newProductPosition || isSelectingLocation}>Add Product</Button>
+                        <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+                        <Button type="button" onClick={handleAddProduct} disabled={!newProductName || !newProductPrice}>
+                            Add Product
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
