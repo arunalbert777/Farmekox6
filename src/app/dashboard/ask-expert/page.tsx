@@ -2,8 +2,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Phone, MessageSquare, UserSquare, Star, MapPin } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 const experts = [
   {
@@ -14,8 +13,7 @@ const experts = [
     rating: 4.8,
     reviews: 124,
     description: "Expert in soil health and high-yield crop management specifically for the Karnataka region. Specializes in Ragi and Maize.",
-    phone: "+91 98450 12345",
-    image: PlaceHolderImages.find(img => img.id === 'expert1')?.imageUrl
+    phone: "+91 98450 12345"
   },
   {
     id: "exp2",
@@ -25,8 +23,7 @@ const experts = [
     rating: 4.5,
     reviews: 89,
     description: "15+ years experience in precise soil analysis and customized fertilizer schedules for organic and commercial farms.",
-    phone: "+91 80234 56789",
-    image: PlaceHolderImages.find(img => img.id === 'expert2')?.imageUrl
+    phone: "+91 80234 56789"
   },
   {
     id: "exp3",
@@ -36,8 +33,7 @@ const experts = [
     rating: 4.9,
     reviews: 210,
     description: "Leading expert in identifying and treating complex plant diseases using integrated pest management techniques.",
-    phone: "+91 99001 88776",
-    image: PlaceHolderImages.find(img => img.id === 'expert3')?.imageUrl
+    phone: "+91 99001 88776"
   },
   {
     id: "exp4",
@@ -47,8 +43,7 @@ const experts = [
     rating: 4.6,
     reviews: 56,
     description: "Advises on choosing the right seeds for local climate conditions. Expert in drought-resistant varieties.",
-    phone: "+91 94480 55443",
-    image: undefined
+    phone: "+91 94480 55443"
   },
   {
     id: "exp5",
@@ -58,8 +53,7 @@ const experts = [
     rating: 4.7,
     reviews: 72,
     description: "Helps farmers transition to organic farming and navigate the certification process for export markets.",
-    phone: "+91 91234 56780",
-    image: undefined
+    phone: "+91 91234 56780"
   },
   {
     id: "exp6",
@@ -69,8 +63,7 @@ const experts = [
     rating: 4.4,
     reviews: 45,
     description: "Specialist in poly-house cultivation, vertical farming, and efficient drip irrigation systems.",
-    phone: "+91 88776 55443",
-    image: undefined
+    phone: "+91 88776 55443"
   },
 ];
 
@@ -93,13 +86,9 @@ export default function AskExpertPage() {
             <CardHeader className="space-y-1 pb-2">
               <div className="flex justify-between items-start mb-2">
                 <Avatar className="size-16 border-2 border-primary/20">
-                  {expert.image ? (
-                    <AvatarImage src={expert.image} alt={expert.name} className="object-cover" />
-                  ) : (
-                    <AvatarFallback className="bg-primary/10 text-primary">
-                      <UserSquare className="size-8" />
-                    </AvatarFallback>
-                  )}
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    <UserSquare className="size-8" />
+                  </AvatarFallback>
                 </Avatar>
                 <Badge variant="secondary" className="bg-secondary text-primary font-bold shadow-sm">
                   <Star className="size-3 mr-1 fill-primary" />
