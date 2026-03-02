@@ -8,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',
-    theme_color: '#22c55e',
+    theme_color: '#288052',
     icons: [
       {
         src: 'https://picsum.photos/seed/farmekox-sprout/192/192',

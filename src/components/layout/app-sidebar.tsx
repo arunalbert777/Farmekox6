@@ -19,12 +19,13 @@ import {
   BotMessageSquare,
   UserSquare,
   Map,
-  Tractor,
   Store,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLanguage } from "@/lib/hooks";
+import Image from "next/image";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "dashboard" },
@@ -42,12 +43,22 @@ const navItems = [
 export function AppSidebar() {
   const pathname = usePathname();
   const { t } = useLanguage();
+  const logo = PlaceHolderImages.find(img => img.id === 'app-logo');
 
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-2 py-4">
-          <Tractor className="size-8 text-primary" />
+        <div className="flex items-center gap-3 px-3 py-4">
+          <div className="relative size-10 flex-shrink-0">
+            {logo && (
+              <Image 
+                src={logo.imageUrl} 
+                alt="Farmekox Logo" 
+                fill 
+                className="object-contain rounded-lg shadow-sm"
+              />
+            )}
+          </div>
           <h1 className="font-headline text-2xl font-bold text-primary">
             {t('farmekox')}
           </h1>

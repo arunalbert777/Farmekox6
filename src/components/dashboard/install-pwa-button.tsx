@@ -2,38 +2,34 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Download, Leaf, X, Sparkles } from 'lucide-react';
+import { Download, X, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/lib/hooks';
 import { Card, CardContent } from '@/components/ui/card';
+import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 /**
- * A PWA installation prompt component.
- * It listens for the 'beforeinstallprompt' event and displays a banner to the user.
+ * A PWA installation prompt component featuring the official Farmekox logo.
  */
 export function InstallPWAButton() {
   const { t } = useLanguage();
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const logo = PlaceHolderImages.find(img => img.id === 'app-logo');
 
   useEffect(() => {
-    // Only run on the client
     if (typeof window === 'undefined') return;
 
     const handler = (e: any) => {
-      // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
-      // Stash the event so it can be triggered later.
       setDeferredPrompt(e);
       setIsVisible(true);
-      console.log('PWA: beforeinstallprompt event fired');
     };
 
     window.addEventListener('beforeinstallprompt', handler);
 
-    // If the app is already installed, hide the button
     if (window.matchMedia('(display-mode: standalone)').matches) {
       setIsVisible(false);
-      console.log('PWA: App is already in standalone mode (installed)');
     }
 
     return () => window.removeEventListener('beforeinstallprompt', handler);
@@ -41,32 +37,30 @@ export function InstallPWAButton() {
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;
-
-    // Show the install prompt
     deferredPrompt.prompt();
-
-    // Wait for the user to respond to the prompt
     const { outcome } = await deferredPrompt.userChoice;
-    
     if (outcome === 'accepted') {
-      console.log('User accepted the PWA install prompt');
+      setIsVisible(false);
     }
-
-    // Clear the deferred prompt variable, it can only be used once
     setDeferredPrompt(null);
-    setIsVisible(false);
   };
 
-  // If not visible, we don't render anything to avoid cluttering the UI
   if (!isVisible) return null;
 
   return (
     <Card className="mb-6 border-primary/50 bg-gradient-to-r from-primary/10 to-green-500/10 shadow-lg overflow-hidden animate-in fade-in slide-in-from-top-4 duration-500 ring-1 ring-primary/20">
       <CardContent className="p-4 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="bg-primary p-3 rounded-2xl shadow-xl border-2 border-primary-foreground/20 relative">
-            <Leaf className="size-8 text-primary-foreground" />
-            <Sparkles className="size-3 text-accent absolute -top-1 -right-1 animate-pulse" />
+          <div className="relative bg-white p-1 rounded-2xl shadow-xl border-2 border-primary/20 size-16 flex-shrink-0">
+            {logo && (
+              <Image 
+                src={logo.imageUrl} 
+                alt="Farmekox Logo" 
+                fill 
+                className="object-contain p-1 rounded-xl"
+              />
+            )}
+            <Sparkles className="size-4 text-accent absolute -top-1 -right-1 animate-pulse" />
           </div>
           <div>
             <h3 className="font-headline text-lg font-bold leading-tight text-primary">Install Farmekox</h3>
