@@ -12,12 +12,12 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: '#288052',
     icons: [
       {
-        src: 'https://picsum.photos/seed/farmekox-leaf-x-logo/192/192',
+        src: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=192&h=192&fit=crop',
         sizes: '192x192',
         type: 'image/png',
       },
       {
-        src: 'https://picsum.photos/seed/farmekox-leaf-x-logo/512/512',
+        src: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=512&h=512&fit=crop',
         sizes: '512x512',
         type: 'image/png',
       },
