@@ -30,15 +30,15 @@ const getWeatherForecast = ai.defineTool(
     outputSchema: WeatherForecastOutputSchema,
   },
   async input => {
-    // Simulated weather data for 2025
+    // Simulated weather data for 2026
     return [
-      {date: '2025-07-22', chanceOfRain: 10},
-      {date: '2025-07-23', chanceOfRain: 20},
-      {date: '2025-07-24', chanceOfRain: 60},
-      {date: '2025-07-25', chanceOfRain: 70},
-      {date: '2025-07-26', chanceOfRain: 10},
-      {date: '2025-07-27', chanceOfRain: 5},
-      {date: '2025-07-28', chanceOfRain: 5},
+      {date: '2026-07-22', chanceOfRain: 15},
+      {date: '2026-07-23', chanceOfRain: 25},
+      {date: '2026-07-24', chanceOfRain: 65},
+      {date: '2026-07-25', chanceOfRain: 75},
+      {date: '2026-07-26', chanceOfRain: 15},
+      {date: '2026-07-27', chanceOfRain: 10},
+      {date: '2026-07-28', chanceOfRain: 5},
     ];
   }
 );
@@ -71,7 +71,7 @@ const prompt = ai.definePrompt({
   tools: [getWeatherForecast],
   prompt: `You are an expert agricultural advisor. Based on the weather forecast for {{{location}}} and the crop type {{{cropType}}}, advise the farmer on whether to skip irrigation.
 
-  Consider the following weather forecast:
+  Consider the following weather forecast for 2026:
   {{#each (getWeatherForecast location=location)}}
   - Date: {{date}}, Chance of Rain: {{chanceOfRain}}%
   {{/each}}

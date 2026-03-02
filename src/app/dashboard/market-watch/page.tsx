@@ -11,12 +11,12 @@ import { useLanguage } from '@/lib/hooks';
 import { getAgriculturalNews, type AgriculturalNewsOutput } from '@/ai/flows/get-agricultural-news';
 
 const initialMandiPrices = [
-  { commodity: "Wheat", variety: "Dara", price: 2350, change: 2.5 },
-  { commodity: "Rice", variety: "Basmati", price: 3800, change: -1.2 },
-  { commodity: "Maize", variety: "Hybrid", price: 2100, change: 0.5 },
-  { commodity: "Cotton", variety: "Long Staple", price: 7500, change: 1.8 },
-  { commodity: "Soybean", variety: "Yellow", price: 4500, change: -0.8 },
-  { commodity: "Tomato", variety: "Hybrid", price: 1800, change: 5.0 },
+  { commodity: "Wheat", variety: "Dara", price: 2550, change: 1.5 },
+  { commodity: "Rice", variety: "Basmati", price: 4200, change: -0.8 },
+  { commodity: "Maize", variety: "Hybrid", price: 2300, change: 1.2 },
+  { commodity: "Cotton", variety: "Long Staple", price: 7800, change: 2.1 },
+  { commodity: "Soybean", variety: "Yellow", price: 4800, change: -0.5 },
+  { commodity: "Tomato", variety: "Hybrid", price: 1950, change: 4.2 },
 ];
 
 export default function MarketWatchPage() {
@@ -31,20 +31,17 @@ export default function MarketWatchPage() {
     const now = new Date();
     setLastUpdated(now.toLocaleTimeString());
     
-    // Initial fetch of real-time AI news
+    // Initial fetch of real-time AI news for 2026
     handleRefresh();
   }, []);
 
   const handleRefresh = () => {
     startTransition(async () => {
-      const now = new Date();
-      const dateString = now.toISOString().split('T')[0]; // YYYY-MM-DD
-
       try {
-        // 1. Fetch real-time AI news
+        // 1. Fetch real-time AI news for 2026
         const newsResponse = await getAgriculturalNews({ 
           region: 'Karnataka, India',
-          currentDate: '2025-07-25' // Keeping it in 2025 as requested
+          currentDate: '2026-07-25' 
         });
         
         // 2. Update Mandi Prices with fluctuations
@@ -70,8 +67,8 @@ export default function MarketWatchPage() {
         <div className="mx-auto bg-primary/10 p-4 rounded-full w-fit">
             <LineChart className="size-8 text-primary" />
         </div>
-        <h1 className="font-headline text-3xl mt-4">Market Watch</h1>
-        <p className="text-muted-foreground">Stay updated with the latest AI-curated news and mandi prices.</p>
+        <h1 className="font-headline text-3xl mt-4">Market Watch 2026</h1>
+        <p className="text-muted-foreground">Stay updated with the latest AI-curated news and mandi prices for the current season.</p>
         
         <div className="mt-6 flex items-center gap-4">
           <Button 
@@ -83,7 +80,7 @@ export default function MarketWatchPage() {
             {t('refresh')}
           </Button>
           {lastUpdated && (
-            <span className="text-xs text-muted-foreground bg-secondary px-3 py-1 rounded-full">
+            <span className="text-xs text-muted-foreground bg-secondary px-3 py-1 rounded-full border border-primary/20">
               Last updated: {lastUpdated}
             </span>
           )}
@@ -93,8 +90,8 @@ export default function MarketWatchPage() {
       <div className="grid gap-8 lg:grid-cols-3">
         <Card className="lg:col-span-2 border-primary/10 shadow-md h-fit">
           <CardHeader className="border-b bg-secondary/10">
-            <CardTitle className="text-xl">Latest Mandi Prices</CardTitle>
-            <CardDescription>Prices from major mandis in Karnataka for 2025.</CardDescription>
+            <CardTitle className="text-xl">Latest Mandi Prices (2026)</CardTitle>
+            <CardDescription>Real-time prices from major mandis in Karnataka.</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             <Table>
@@ -131,13 +128,13 @@ export default function MarketWatchPage() {
         <div className="space-y-6">
           <div className="flex items-center gap-2 mb-4">
             <Newspaper className="size-6 text-primary" />
-            <h2 className="font-headline text-2xl border-l-4 border-primary pl-3">Real-Time News</h2>
+            <h2 className="font-headline text-2xl border-l-4 border-primary pl-3">Breaking News 2026</h2>
           </div>
           
           {isPending && newsArticles.length === 0 ? (
-            <div className="flex flex-col items-center justify-center p-12 bg-secondary/10 rounded-xl border border-dashed">
+            <div className="flex flex-col items-center justify-center p-12 bg-secondary/10 rounded-xl border border-dashed border-primary/20">
               <Loader2 className="size-8 animate-spin text-primary mb-2" />
-              <p className="text-sm text-muted-foreground">Fetching latest headlines...</p>
+              <p className="text-sm text-muted-foreground font-medium">Fetching 2026 headlines...</p>
             </div>
           ) : (
             <div className="grid gap-6">
@@ -153,7 +150,7 @@ export default function MarketWatchPage() {
                       data-ai-hint={article.imageHint}
                     />
                     <div className="absolute top-2 left-2">
-                      <Badge className="bg-primary/90 shadow-sm">Real-Time AI</Badge>
+                      <Badge className="bg-primary/90 shadow-sm border-none">Real-Time AI 2026</Badge>
                     </div>
                   </div>
                   <CardHeader className="p-4">
@@ -161,8 +158,8 @@ export default function MarketWatchPage() {
                     <CardDescription className="line-clamp-2 text-xs mt-2">{article.summary}</CardDescription>
                   </CardHeader>
                   <CardFooter className="text-[10px] text-muted-foreground flex justify-between items-center border-t p-3 bg-secondary/5">
-                    <span className="font-bold text-primary/80 uppercase">{article.source}</span>
-                    <span>{article.date}</span>
+                    <span className="font-bold text-primary/80 uppercase tracking-tighter">{article.source}</span>
+                    <span className="font-medium">{article.date}</span>
                   </CardFooter>
                 </Card>
               ))}

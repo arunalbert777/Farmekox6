@@ -23,13 +23,13 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const initialForecast = [
-  { day: "Today", date: "2025-07-22", chanceOfRain: 10, temp: 32, Icon: Sun },
-  { day: "Tue", date: "2025-07-23", chanceOfRain: 20, temp: 33, Icon: Cloud },
-  { day: "Wed", date: "2025-07-24", chanceOfRain: 60, temp: 29, Icon: CloudRain },
-  { day: "Thu", date: "2025-07-25", chanceOfRain: 70, temp: 28, Icon: CloudRain },
-  { day: "Fri", date: "2025-07-26", chanceOfRain: 10, temp: 31, Icon: Cloud },
-  { day: "Sat", date: "2025-07-27", chanceOfRain: 5, temp: 34, Icon: Sun },
-  { day: "Sun", date: "2025-07-28", chanceOfRain: 5, temp: 34, Icon: Sun },
+  { day: "Today", date: "2026-07-22", chanceOfRain: 15, temp: 31, Icon: Sun },
+  { day: "Tue", date: "2026-07-23", chanceOfRain: 25, temp: 32, Icon: Cloud },
+  { day: "Wed", date: "2026-07-24", chanceOfRain: 65, temp: 28, Icon: CloudRain },
+  { day: "Thu", date: "2026-07-25", chanceOfRain: 75, temp: 27, Icon: CloudRain },
+  { day: "Fri", date: "2026-07-26", chanceOfRain: 15, temp: 30, Icon: Cloud },
+  { day: "Sat", date: "2026-07-27", chanceOfRain: 10, temp: 33, Icon: Sun },
+  { day: "Sun", date: "2026-07-28", chanceOfRain: 5, temp: 34, Icon: Sun },
 ];
 
 export function WeatherClient() {
@@ -68,18 +68,18 @@ export function WeatherClient() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>{t("weather_forecast_title")}</CardTitle>
+            <CardTitle>{t("weather_forecast_title")} (2026)</CardTitle>
             <Button variant="ghost" size="icon" onClick={handleRefresh} disabled={isPending}>
               {isPending ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
             </Button>
           </div>
-          <CardDescription>For Bengaluru, India</CardDescription>
+          <CardDescription>Forecast data updated for July 2026 in Bengaluru.</CardDescription>
         </CardHeader>
         <CardContent>
             <ScrollArea className="w-full whitespace-nowrap">
                 <div className="flex w-max space-x-4">
                     {forecast.map((day, index) => (
-                        <div key={index} className="p-4 rounded-lg bg-secondary/50 flex flex-col items-center gap-2 text-center min-w-[100px]">
+                        <div key={index} className="p-4 rounded-lg bg-secondary/50 flex flex-col items-center gap-2 text-center min-w-[100px] border border-primary/5">
                         <p className="font-bold">{day.day}</p>
                         <day.Icon className="size-8 text-primary" />
                         <p className="font-semibold">{day.temp}°C</p>
@@ -100,7 +100,7 @@ export function WeatherClient() {
       <Card>
         <CardHeader>
           <CardTitle>Rain Alert & Irrigation Advice</CardTitle>
-          <CardDescription>Get AI advice on whether to skip irrigation based on the forecast.</CardDescription>
+          <CardDescription>Get AI advice on whether to skip irrigation based on the 2026 monsoon forecast.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -131,8 +131,8 @@ export function WeatherClient() {
           {adviceResult && (
             <Alert className="mt-6 border-primary bg-primary/5">
               <Info className="size-4 text-primary"/>
-              <AlertTitle className="text-primary">AI Irrigation Advice</AlertTitle>
-              <AlertDescription>{adviceResult.advice}</AlertDescription>
+              <AlertTitle className="text-primary">AI Irrigation Advice (2026)</AlertTitle>
+              <AlertDescription className="font-medium">{adviceResult.advice}</AlertDescription>
             </Alert>
           )}
           {adviceError && <p className="mt-4 text-center text-destructive">{adviceError}</p>}
