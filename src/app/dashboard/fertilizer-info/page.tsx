@@ -40,10 +40,18 @@ export default function FertilizerInfoPage() {
         return;
     }
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      // Requesting the BACK camera explicitly for barcode scanning
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: { exact: 'environment' } } 
+      }).catch(async () => {
+          // Fallback if 'exact' is not supported
+          return await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      });
+      
       setHasCameraPermission(true);
       if (videoRef.current) videoRef.current.srcObject = stream;
     } catch (error) {
+      console.error("Camera error:", error);
       setHasCameraPermission(false);
     }
   };
@@ -118,7 +126,7 @@ export default function FertilizerInfoPage() {
                   {hasCameraPermission === false && (
                       <Alert variant="destructive">
                           <AlertTitle>Camera Access Required</AlertTitle>
-                          <AlertDescription>Please enable camera permissions in settings to use the scanner.</AlertDescription>
+                          <AlertDescription>Please enable camera permissions in settings to use the scanner. Ensure you allow access to the back camera.</AlertDescription>
                       </Alert>
                   )}
               </div>

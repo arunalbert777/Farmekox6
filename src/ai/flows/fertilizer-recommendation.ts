@@ -48,9 +48,9 @@ const prompt = ai.definePrompt({
      - If 8 digits starting with 3105: Treat as HSN Code for Fertilizers (e.g., 31053000 is DAP).
      - If alphanumeric string: Treat as content from an Indian Agricultural QR Code (IFFCO Traceability, Bayer/Syngenta unique unit ID).
   
-  2. GS1 INDIA PREFIX LOOKUP (MANDATORY):
-     - 8901138... -> ALWAYS HIMALAYA WELLNESS COMPANY (Purifying Neem Face Wash, Baby Lotion, etc.)
-     - 8901248... -> ALWAYS EMAMI LIMITED (Navaratna Oil, Fair and Handsome, Zandu Balm).
+  2. GS1 INDIA PREFIX LOOKUP (MANDATORY KNOWLEDGE):
+     - Barcode starting with 8901138... -> THIS IS HIMALAYA WELLNESS COMPANY. (e.g., 8901138815943 is Himalaya Purifying Neem Face Wash).
+     - Barcode starting with 8901248... -> THIS IS EMAMI LIMITED / NAVARATNA. (e.g., 8901248104036 is Navaratna Oil).
      - 8901030... -> HINDUSTAN UNILEVER (HUL).
      - 8901058... -> NESTLE INDIA.
      - 8901495... -> ITC LIMITED.
@@ -62,18 +62,18 @@ const prompt = ai.definePrompt({
      - Syngenta/Bayer: 890 prefix + secondary QR code verification.
 
   CRITICAL ERROR PREVENTION:
-  - DO NOT return "Sunfeast Yippee" for any 8901138 barcode. That is Himalaya.
-  - DO NOT return "KitKat" for any 8901248 barcode. That is Emami/Navaratna.
-  - If the product is non-agricultural (Shampoo, Oil, Food), adapt the "Steps" to be servable/consumable/usable steps, using "N/A" for NPK.
+  - DO NOT return "Sunfeast Yippee" for any 8901138 barcode. That prefix is exclusively Himalaya.
+  - DO NOT return "KitKat" for any 8901248 barcode. That prefix is exclusively Emami/Navaratna.
+  - If the product is non-agricultural (Shampoo, Oil, Food), adapt the "Steps" to be relevant usage/application/storage steps.
   
-  Instructions:
-  - Step 1: Specific Dosage/Portion.
-  - Step 2: Preparation/Storage.
-  - Step 3: Application/Use Method.
-  - Step 4: Best Time to Use.
-  - Step 5: Safety Measures.
+  Instructions for Output:
+  - Step 1: Specific Dosage/Portion/Quantity per use.
+  - Step 2: Preparation or storage before use.
+  - Step 3: Application or consumption method.
+  - Step 4: Best time to use or apply.
+  - Step 5: Safety measures during or after use.
 
-  Perform a strict identification. If you are uncertain about the specific product but know the brand from the prefix, return the brand and the most likely product profile for that specific prefix.`,
+  Perform a strict identification. If you identify the brand but not the specific variant, describe the brand's primary product associated with that barcode range accurately.`,
 });
 
 const fertilizerProductInfoFlow = ai.defineFlow(
