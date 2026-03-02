@@ -32,16 +32,30 @@ type Product = {
   name: string;
   price: string;
   farmer: string;
+  emoji: string;
   position: { lat: number; lng: number };
   image: ImagePlaceholder | undefined;
 };
 
 const initialProducts: Product[] = [
-  { id: 1, name: "Fresh Tomatoes", price: "₹30/kg", farmer: "Ramesh Kumar", position: { lat: 12.9716, lng: 77.5946 }, image: PlaceHolderImages.find(img => img.id === 'product-tomatoes') },
-  { id: 2, name: "Organic Potatoes", price: "₹40/kg", farmer: "Sita Devi", position: { lat: 12.9750, lng: 77.6000 }, image: PlaceHolderImages.find(img => img.id === 'product-potatoes') },
-  { id: 3, name: "Red Onions", price: "₹25/kg", farmer: "Vijay Singh", position: { lat: 12.9800, lng: 77.5850 }, image: PlaceHolderImages.find(img => img.id === 'product-onions') },
-  { id: 4, name: "Local Spinach", price: "₹20/bunch", farmer: "Anitha", position: { lat: 12.9650, lng: 77.5890 }, image: undefined },
+  { id: 1, name: "Fresh Tomatoes", price: "₹30/kg", farmer: "Ramesh Kumar", emoji: "🍅", position: { lat: 12.9716, lng: 77.5946 }, image: PlaceHolderImages.find(img => img.id === 'product-tomatoes') },
+  { id: 2, name: "Organic Potatoes", price: "₹40/kg", farmer: "Sita Devi", emoji: "🥔", position: { lat: 12.9750, lng: 77.6000 }, image: PlaceHolderImages.find(img => img.id === 'product-potatoes') },
+  { id: 3, name: "Red Onions", price: "₹25/kg", farmer: "Vijay Singh", emoji: "🧅", position: { lat: 12.9800, lng: 77.5850 }, image: PlaceHolderImages.find(img => img.id === 'product-onions') },
+  { id: 4, name: "Local Spinach", price: "₹20/bunch", farmer: "Anitha", emoji: "🥬", position: { lat: 12.9650, lng: 77.5890 }, image: undefined },
 ];
+
+const getEmojiForProduct = (name: string): string => {
+    const n = name.toLowerCase();
+    if (n.includes('tomato')) return '🍅';
+    if (n.includes('potato')) return '🥔';
+    if (n.includes('onion')) return '🧅';
+    if (n.includes('chili') || n.includes('chilli')) return '🌶️';
+    if (n.includes('carrot')) return '🥕';
+    if (n.includes('spinach') || n.includes('leaf')) return '🥬';
+    if (n.includes('corn') || n.includes('maize')) return '🌽';
+    if (n.includes('eggplant') || n.includes('brinjal')) return '🍆';
+    return '🌾'; // Default crop
+}
 
 export function DirectSalesMap({ apiKey }: { apiKey: string }) {
   const { t } = useLanguage();
@@ -59,7 +73,6 @@ export function DirectSalesMap({ apiKey }: { apiKey: string }) {
   const [newProductPrice, setNewProductPrice] = useState('');
 
   const handleMapClick = (e: any) => {
-      // Check for e.detail.latLng or e.latLng depending on library version
       const latLng = e.detail?.latLng || e.latLng;
       if (!isSelectingLocation || !latLng) return;
       
@@ -80,7 +93,8 @@ export function DirectSalesMap({ apiKey }: { apiKey: string }) {
               name: newProductName,
               price: newProductPrice,
               position: tempPosition,
-              farmer: "You", // Placeholder for current user
+              farmer: "You",
+              emoji: getEmojiForProduct(newProductName),
               image: undefined,
           };
           setProducts(prev => [...prev, newProduct]);
@@ -99,7 +113,6 @@ export function DirectSalesMap({ apiKey }: { apiKey: string }) {
   return (
     <APIProvider apiKey={apiKey}>
         <div className="w-full h-full relative">
-            {/* Selection Mode Instructions Overlay - pointer-events-none ensures clicks pass through the container */}
             {isSelectingLocation && (
                 <div className="absolute top-4 inset-x-0 z-20 flex justify-center pointer-events-none px-4">
                     <div className="bg-primary text-primary-foreground p-3 rounded-lg shadow-2xl border-2 border-primary-foreground/20 flex items-center justify-between pointer-events-auto animate-in slide-in-from-top-4 duration-300 w-full max-w-sm">
@@ -131,16 +144,15 @@ export function DirectSalesMap({ apiKey }: { apiKey: string }) {
                     onClick={() => setSelectedProduct(product)}
                 >
                     <div
-                    className="w-8 h-8 rounded-full border-2 border-white bg-primary text-primary-foreground flex items-center justify-center cursor-pointer shadow-lg hover:scale-110 transition-transform"
+                    className="w-10 h-10 rounded-full border-2 border-white bg-white flex items-center justify-center cursor-pointer shadow-xl hover:scale-125 transition-transform text-xl"
                     title={`${product.name} - ${product.price}`}
                     >
-                        <ShoppingCart className="size-4"/>
+                        {product.emoji}
                     </div>
                 </AdvancedMarker>
                 ))}
             </Map>
             
-            {/* Trigger Button - Floating Action Button style */}
             {!isSelectingLocation && (
                 <Button 
                     size="icon" 
@@ -152,7 +164,6 @@ export function DirectSalesMap({ apiKey }: { apiKey: string }) {
                 </Button>
             )}
 
-            {/* Product Details Dialog */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
@@ -219,10 +230,15 @@ export function DirectSalesMap({ apiKey }: { apiKey: string }) {
                                 </div>
                             )}
                             <div className="p-6 pb-0">
-                                <SheetTitle className="text-2xl">{selectedProduct.name}</SheetTitle>
-                                <SheetDescription>
-                                    Sold by: {selectedProduct.farmer}
-                                </SheetDescription>
+                                <div className="flex items-center gap-3 mb-2">
+                                    <span className="text-4xl">{selectedProduct.emoji}</span>
+                                    <div>
+                                        <SheetTitle className="text-2xl">{selectedProduct.name}</SheetTitle>
+                                        <SheetDescription>
+                                            Sold by: {selectedProduct.farmer}
+                                        </SheetDescription>
+                                    </div>
+                                </div>
                             </div>
                         </SheetHeader>
                         <div className="py-4 px-6">
@@ -241,3 +257,4 @@ export function DirectSalesMap({ apiKey }: { apiKey: string }) {
     </APIProvider>
   );
 }
+
