@@ -1,193 +1,179 @@
-
 "use client";
 
 import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Camera, Send, AlertCircle, CheckCircle2, FlaskConical, Droplets, Clock, ShieldCheck, Scale, X, QrCode, ScanLine } from "lucide-react";
+import { Loader2, Camera, Send, AlertCircle, CheckCircle2, FlaskConical, Droplets, Clock, ShieldCheck, Scale, X, CameraIcon, RefreshCcw } from "lucide-react";
 import { useLanguage } from "@/lib/hooks";
 import { getFertilizerProductInfo, type FertilizerProductInfo } from "@/ai/flows/fertilizer-recommendation";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Html5Qrcode } from "html5-qrcode";
+import Image from "next/image";
 
 export default function FertilizerInfoPage() {
   const { t } = useLanguage();
   const { toast } = useToast();
 
-  const [barcode, setBarcode] = useState("");
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [productInfo, setProductInfo] = useState<FertilizerProductInfo | null>(null);
   const [loading, setLoading] = useState(false);
   
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
-  const scannerRef = useRef<Html5Qrcode | null>(null);
-  const SCANNER_ID = "reader";
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
+    if (isCameraOpen) {
+      const getCameraPermission = async () => {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: "environment" } 
+          });
+          setHasCameraPermission(true);
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+          }
+        } catch (error) {
+          console.error('Error accessing camera:', error);
+          setHasCameraPermission(false);
+          toast({
+            variant: 'destructive',
+            title: 'Camera Access Denied',
+            description: 'Please enable camera permissions in your browser settings to use this feature.',
+          });
+          setIsCameraOpen(false);
+        }
+      };
+      getCameraPermission();
+    } else {
+      // Stop camera stream when closing
+      if (videoRef.current && videoRef.current.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach(track => track.stop());
+        videoRef.current.srcObject = null;
+      }
+    }
+    
     return () => {
-      if (scannerRef.current) {
-        scannerRef.current.stop().catch(console.error);
+      if (videoRef.current && videoRef.current.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach(track => track.stop());
       }
     };
-  }, []);
+  }, [isCameraOpen, toast]);
 
-  const startScanner = async () => {
-    try {
-      const html5QrCode = new Html5Qrcode(SCANNER_ID);
-      scannerRef.current = html5QrCode;
-
-      const config = { 
-        fps: 10, 
-        qrbox: { width: 250, height: 250 },
-        aspectRatio: 1.0 
-      };
-
-      await html5QrCode.start(
-        { facingMode: "environment" },
-        config,
-        (decodedText) => {
-          // Success: stop scanner and process result
-          setBarcode(decodedText);
-          handleToggleCamera(); // Stop camera
-          handleFetchProduct(decodedText); // Auto-fetch
-          toast({ title: "Code Scanned", description: `Detected: ${decodedText}` });
-        },
-        () => {
-          // Scan fail: quiet fail, just keep scanning
-        }
-      );
-      setHasCameraPermission(true);
-    } catch (err) {
-      console.error("Scanner start failed:", err);
-      setHasCameraPermission(false);
-      toast({ 
-        variant: "destructive", 
-        title: "Camera Error", 
-        description: "Could not access the camera. Please check permissions." 
-      });
-      setIsCameraOpen(false);
-    }
-  };
-
-  const handleToggleCamera = () => {
-    if (isCameraOpen) {
-      if (scannerRef.current && scannerRef.current.isScanning) {
-        scannerRef.current.stop().then(() => {
-          scannerRef.current = null;
-          setIsCameraOpen(false);
-        }).catch(err => {
-          console.error("Stop failed", err);
-          setIsCameraOpen(false);
-        });
-      } else {
+  const handleCapture = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const context = canvas.getContext('2d');
+      if (context) {
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUri = canvas.toDataURL('image/jpeg');
+        setCapturedImage(dataUri);
         setIsCameraOpen(false);
       }
-    } else {
-      setIsCameraOpen(true);
-      // Wait for DOM to render the scanner div
-      setTimeout(startScanner, 100);
     }
   };
 
-  const handleFetchProduct = async (scannedCode?: string) => {
-    const codeToUse = scannedCode || barcode.trim();
-    if (!codeToUse) {
-      toast({ 
-        variant: "destructive", 
-        title: "Input Required", 
-        description: "Please enter or scan a barcode/QR code." 
-      });
-      return;
-    }
+  const handleAnalyze = async () => {
+    if (!capturedImage) return;
     
     setLoading(true);
     setProductInfo(null);
 
     try {
-      const info = await getFertilizerProductInfo({ barcode: codeToUse });
+      const info = await getFertilizerProductInfo({ photoDataUri: capturedImage });
       setProductInfo(info);
+      toast({ title: "Analysis Complete", description: "Product successfully identified." });
     } catch (err: any) {
       toast({ 
         variant: "destructive", 
         title: "Identification Error", 
-        description: "Could not identify this code. Please try again." 
+        description: "Could not identify the product from the image. Please try a clearer photo." 
       });
     } finally {
       setLoading(false);
     }
   };
 
+  const resetCapture = () => {
+    setCapturedImage(null);
+    setProductInfo(null);
+    setIsCameraOpen(true);
+  };
+
   return (
     <div className="container mx-auto max-w-4xl space-y-6 pb-12">
       <div className="text-center mb-6">
         <div className="mx-auto bg-primary/10 p-4 rounded-full w-fit">
-          <QrCode className="size-8 text-primary" />
+          <CameraIcon className="size-8 text-primary" />
         </div>
-        <h1 className="font-headline text-3xl mt-4">{t("fertilizer_info_title")}</h1>
-        <p className="text-muted-foreground">Scan QR codes or barcodes for instant product profiles and usage guides.</p>
+        <h1 className="font-headline text-3xl mt-4">AI Vision: Product Identification</h1>
+        <p className="text-muted-foreground">Take a photo of any fertilizer or agricultural product for instant expert guidance.</p>
       </div>
 
       <div className="grid gap-6">
-        <Card>
+        <Card className="overflow-hidden border-primary/20">
           <CardHeader>
-            <CardTitle>Product Identification</CardTitle>
-            <CardDescription>Use the scanner for barcodes/QR or enter the code manually below.</CardDescription>
+            <CardTitle>Capture Product Photo</CardTitle>
+            <CardDescription>Ensure the brand and details are clearly visible in the frame.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {isCameraOpen && (
-              <div className="space-y-2 relative group bg-black rounded-md overflow-hidden min-h-[300px] flex flex-col">
-                  <div id={SCANNER_ID} className="w-full flex-1" />
-                  <div className="absolute top-2 right-2 z-10">
-                    <Button 
-                      variant="destructive" 
-                      size="icon" 
-                      className="rounded-full shadow-lg"
-                      onClick={handleToggleCamera}
-                    >
-                      <X className="size-4" />
+            <div className="relative aspect-video rounded-lg bg-black overflow-hidden shadow-inner flex items-center justify-center">
+              {isCameraOpen ? (
+                <>
+                  <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-4">
+                    <Button onClick={handleCapture} className="rounded-full h-16 w-16 bg-white hover:bg-white/90 border-4 border-primary/50 text-primary">
+                      <Camera className="size-8" />
+                    </Button>
+                    <Button variant="destructive" size="icon" className="rounded-full h-10 w-10" onClick={() => setIsCameraOpen(false)}>
+                      <X className="size-5" />
                     </Button>
                   </div>
-                  {hasCameraPermission === false && (
-                    <div className="absolute inset-0 flex items-center justify-center p-4 bg-black/60 z-20">
-                      <Alert variant="destructive" className="max-w-xs">
-                        <AlertTitle>Camera Access Required</AlertTitle>
-                        <AlertDescription>Please enable camera permissions in settings to use the scanner.</AlertDescription>
-                      </Alert>
-                    </div>
-                  )}
-              </div>
+                </>
+              ) : capturedImage ? (
+                <div className="relative w-full h-full">
+                  <Image src={capturedImage} alt="Captured product" fill className="object-cover" />
+                  <div className="absolute bottom-4 right-4 flex gap-2">
+                    <Button onClick={resetCapture} variant="secondary" className="shadow-lg">
+                      <RefreshCcw className="mr-2 size-4" /> Retake
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-4 text-white/50">
+                  <CameraIcon className="size-16 opacity-20" />
+                  <Button onClick={() => setIsCameraOpen(true)} className="h-12 px-8">
+                    Open Camera
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <canvas ref={canvasRef} className="hidden" />
+
+            {hasCameraPermission === false && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Camera Access Required</AlertTitle>
+                <AlertDescription>
+                  Please allow camera access to use the AI vision features.
+                </AlertDescription>
+              </Alert>
             )}
 
-            <div className="flex flex-col gap-4">
-              <div className="flex-1 space-y-2">
-                <Label htmlFor="barcode">Manual Entry / Scanned Result</Label>
-                <div className="flex gap-2">
-                    <Input
-                        id="barcode"
-                        value={barcode}
-                        onChange={(e) => setBarcode(e.target.value)}
-                        placeholder="Scan or enter code (e.g., 8901138815943)"
-                        className="flex-1"
-                        onKeyDown={(e) => e.key === 'Enter' && handleFetchProduct()}
-                    />
-                    <Button 
-                      onClick={handleToggleCamera} 
-                      variant={isCameraOpen ? "secondary" : "outline"} 
-                      size="icon"
-                      className={isCameraOpen ? "animate-pulse border-primary" : ""}
-                    >
-                        {isCameraOpen ? <ScanLine className="size-5 text-primary" /> : <Camera className="size-5" />}
-                    </Button>
-                </div>
-              </div>
-              <Button onClick={() => handleFetchProduct()} disabled={loading} className="w-full h-12 text-lg">
+            {capturedImage && !productInfo && (
+              <Button onClick={handleAnalyze} disabled={loading} className="w-full h-12 text-lg shadow-lg">
                 {loading ? <Loader2 className="mr-2 size-5 animate-spin" /> : <Send className="mr-2 size-5" />}
-                {loading ? 'Identifying...' : 'Get Product Info'}
+                {loading ? 'Analyzing Product...' : 'Analyze Product Image'}
               </Button>
-            </div>
+            )}
           </CardContent>
         </Card>
 
@@ -208,7 +194,7 @@ export default function FertilizerInfoPage() {
                         <p className="font-bold text-xl text-primary">{productInfo.npkComposition}</p>
                     </div>
                     <div>
-                        <Label className="text-xs uppercase text-muted-foreground font-bold">Expiry / Batch Info</Label>
+                        <Label className="text-xs uppercase text-muted-foreground font-bold">Estimated Expiry</Label>
                         <p className="font-medium">{productInfo.expiryDate}</p>
                     </div>
                     <div>
@@ -220,18 +206,18 @@ export default function FertilizerInfoPage() {
                         </div>
                     </div>
                     <div>
-                        <Label className="text-xs uppercase text-muted-foreground font-bold">Recommended Soil</Label>
+                        <Label className="text-xs uppercase text-muted-foreground font-bold">Recommended Environment</Label>
                         <p className="text-sm font-medium">{productInfo.recommendedSoilType}</p>
                     </div>
                     <div className="md:col-span-2">
-                        <Label className="text-xs uppercase text-muted-foreground font-bold">Manufacturer Details</Label>
+                        <Label className="text-xs uppercase text-muted-foreground font-bold">Manufacturer Info</Label>
                         <p className="text-sm">{productInfo.manufacturerDetails}</p>
                     </div>
                 </div>
 
                 <Alert variant="default" className="bg-amber-50 border-amber-200">
                     <AlertCircle className="size-4 text-amber-600" />
-                    <AlertTitle className="text-amber-800 text-sm font-bold">Safety Precautions</AlertTitle>
+                    <AlertTitle className="text-amber-800 text-sm font-bold">Expert Safety Precautions</AlertTitle>
                     <AlertDescription className="text-amber-700 text-xs mt-1 leading-relaxed">
                         {productInfo.safetyPrecautions}
                     </AlertDescription>
@@ -241,8 +227,8 @@ export default function FertilizerInfoPage() {
 
             <Card className="border-accent/30 shadow-md">
               <CardHeader className="bg-accent/5 border-b">
-                <CardTitle className="text-xl">Step-by-Step Usage Instructions</CardTitle>
-                <CardDescription>Tailored instructions for effective results.</CardDescription>
+                <CardTitle className="text-xl">Step-by-Step Usage Guide</CardTitle>
+                <CardDescription>AI-generated instructions based on the identified product.</CardDescription>
               </CardHeader>
               <CardContent className="pt-6 space-y-6">
                 <div className="flex gap-4 group">
@@ -250,7 +236,7 @@ export default function FertilizerInfoPage() {
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
                             <Scale className="size-4 text-primary" />
-                            <p className="font-bold text-base text-foreground">Step 1: Dosage / Serving</p>
+                            <p className="font-bold text-base text-foreground">Step 1: Dosage / Amount</p>
                         </div>
                         <p className="text-sm text-muted-foreground leading-relaxed">{productInfo.usageInstructions.dosagePerAcre}</p>
                     </div>
@@ -283,7 +269,7 @@ export default function FertilizerInfoPage() {
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
                             <Clock className="size-4 text-primary" />
-                            <p className="font-bold text-base text-foreground">Step 4: Best Time to Use</p>
+                            <p className="font-bold text-base text-foreground">Step 4: Optimal Timing</p>
                         </div>
                         <p className="text-sm text-muted-foreground leading-relaxed">{productInfo.usageInstructions.bestTimeToApply}</p>
                     </div>
@@ -294,7 +280,7 @@ export default function FertilizerInfoPage() {
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
                             <ShieldCheck className="size-4 text-primary" />
-                            <p className="font-bold text-base text-foreground">Step 5: Safety During Use</p>
+                            <p className="font-bold text-base text-foreground">Step 5: Safety Measures</p>
                         </div>
                         <p className="text-sm text-muted-foreground leading-relaxed">{productInfo.usageInstructions.safetyMeasures}</p>
                     </div>
