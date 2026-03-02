@@ -1,0 +1,205 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * FARMEXOX SECURITY RULES
+     * 
+     * CORE PHILOSOPHY:
+     * This ruleset implements a strict user-ownership model combined with public access to agricultural master data.
+     * User data is private and accessible only by the authenticated owner. Master data (Crops, Fertilizers, 
+     * News, etc.) is read-only for all authenticated users to ensure a consistent experience across the platform.
+     * 
+     * DATA STRUCTURE:
+     * - /users/{userId}: Root profile for each farmer.
+     * - /users/{userId}/farms/{farmId}: Private farm data and associated subcollections (AI advice, calendars).
+     * - /fertilizer_products/{barcode}: Global master data for products, indexed by barcode.
+     * - /crops/{cropId}, /agricultural_news/{newsId}, etc.: Global read-only collections.
+     * 
+     * KEY SECURITY DECISIONS:
+     * 1. Authorization Independence: User IDs are checked against path parameters AND internal document 
+     *    fields (denormalization) during creation to ensure data integrity without cross-document reads.
+     * 2. Prototyping Flexibility: Rules do not enforce strict data types for non-relational fields 
+     *    (e.g., strings vs. numbers), allowing for rapid iteration on the UI.
+     * 3. Read-Only Master Data: Since master data entities lack an 'authorId', writes are restricted 
+     *    to internal administrative processes (blocked here) to prevent user-side tampering.
+     */
+
+    // --- HELPER FUNCTIONS ---
+
+    /** @description Checks if the user is authenticated with a valid UID. */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /** @description Validates if the authenticated user matches the provided ID. */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /** @description Combines ownership and existence checks for destructive/modifying operations. */
+    function isExistingOwner(userId) {
+      return resource != null && isOwner(userId);
+    }
+
+    // --- COLLECTION RULES ---
+
+    /**
+     * @description Rules for the root user profile.
+     * @path /users/{userId}
+     * @allow User 'A' (create) their own profile where document ID matches their auth UID.
+     * @deny User 'A' (update) User 'B's profile.
+     * @principle Self-creation and strict ownership of the primary identity document.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false; // Users should not be listable by other users
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+
+      /**
+       * @description Rules for farms owned by a user.
+       * @path /users/{userId}/farms/{farmId}
+       * @allow User 'A' (list) all farms under their own user path.
+       * @deny User 'A' (create) a farm record for User 'B'.
+       * @principle Path-based ownership with relational integrity via 'userId' field.
+       */
+      match /farms/{farmId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
+
+        /**
+         * @description Rules for AI-generated fertilizer advice.
+         * @path /users/{userId}/farms/{farmId}/fertilizer_ai_advice/{adviceId}
+         * @allow User 'A' (get) specific advice generated for their farm.
+         * @deny User 'A' (create) advice where the internal 'userId' doesn't match their own.
+         * @principle Secures private AI guidance within the user's data tree.
+         */
+        match /fertilizer_ai_advice/{adviceId} {
+          allow get, list: if isOwner(userId);
+          allow create: if isOwner(userId) && request.resource.data.userId == userId;
+          allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+          allow delete: if isExistingOwner(userId);
+        }
+
+        /**
+         * @description Rules for crop recommendations.
+         * @path /users/{userId}/farms/{farmId}/crop_recommendations/{recommendationId}
+         * @allow User 'A' (list) recommendations for their specific farm.
+         * @deny User 'B' (get) recommendation belonging to User 'A'.
+         * @principle Multi-level path authorization ensuring private access to farm analytics.
+         */
+        match /crop_recommendations/{recommendationId} {
+          allow get, list: if isOwner(userId);
+          allow create: if isOwner(userId) && request.resource.data.userId == userId && request.resource.data.farmId == farmId;
+          allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+          allow delete: if isExistingOwner(userId);
+        }
+
+        /**
+         * @description Rules for farming activity schedules.
+         * @path /users/{userId}/farms/{farmId}/crop_calendar_entries/{entryId}
+         * @allow User 'A' (update) the 'isCompleted' status of an activity on their farm.
+         * @deny User 'A' (delete) an entry on a farm they do not own.
+         * @principle Enforces consistency between the farm path and the calendar data.
+         */
+        match /crop_calendar_entries/{entryId} {
+          allow get, list: if isOwner(userId);
+          allow create: if isOwner(userId) && request.resource.data.farmId == farmId;
+          allow update: if isExistingOwner(userId) && request.resource.data.farmId == resource.data.farmId;
+          allow delete: if isExistingOwner(userId);
+        }
+
+        /**
+         * @description Rules for cached weather forecasts.
+         * @path /users/{userId}/farms/{farmId}/weather_forecasts/{forecastId}
+         * @allow User 'A' (get) weather data specific to their farm location.
+         * @deny User 'B' (update) weather records in User 'A's tree.
+         * @principle Path-scoped private data access for location-based information.
+         */
+        match /weather_forecasts/{forecastId} {
+          allow get, list: if isOwner(userId);
+          allow create: if isOwner(userId) && request.resource.data.farmId == farmId;
+          allow update: if isExistingOwner(userId) && request.resource.data.farmId == resource.data.farmId;
+          allow delete: if isExistingOwner(userId);
+        }
+      }
+    }
+
+    /**
+     * @description Rules for crop master data.
+     * @path /crops/{cropId}
+     * @allow Any authenticated user (list) the available crops.
+     * @deny Any user (create) a new crop entry.
+     * @principle Read-only access to global master data.
+     */
+    match /crops/{cropId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if false; 
+    }
+
+    /**
+     * @description Rules for fertilizer product master data.
+     * @path /fertilizer_products/{barcode}
+     * @allow Any authenticated user (get) product info by scanning a barcode.
+     * @deny User (update) fertilizer composition data.
+     * @principle Master data indexed by barcode for rapid O(1) retrieval.
+     */
+    match /fertilizer_products/{barcode} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if false; 
+    }
+
+    /**
+     * @description Rules for agricultural news articles.
+     * @path /agricultural_news/{newsId}
+     * @allow Signed-in user (list) recent news articles.
+     * @deny User (delete) a news article.
+     * @principle Global public read access for community information.
+     */
+    match /agricultural_news/{newsId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if false; 
+    }
+
+    /**
+     * @description Rules for market price tracking.
+     * @path /mandi_prices/{priceId}
+     * @allow Farmer (get) current prices for crops in their region.
+     * @deny User (create) a price record.
+     * @principle Read-only market data for authenticated users.
+     */
+    match /mandi_prices/{priceId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if false; 
+    }
+
+    /**
+     * @description Rules for expert contact directory.
+     * @path /expert_contacts/{expertId}
+     * @allow User (list) available agronomy experts.
+     * @deny User (update) an expert's contact number.
+     * @principle Public directory access for verified experts.
+     */
+    match /expert_contacts/{expertId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if false; 
+    }
+
+    /**
+     * @description Rules for physical agricultural resources (shops, stores).
+     * @path /agricultural_resources/{resourceId}
+     * @allow User (get) details of a nearby fertilizer shop.
+     * @deny User (create) a new resource location.
+     * @principle Location-based resource directory for authenticated users.
+     */
+    match /agricultural_resources/{resourceId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if false; 
+    }
+
+  }
+}

@@ -1,0 +1,821 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a farmer registered with the Farmekox system.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "fullName": {
+          "type": "string",
+          "description": "The full name of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the user for communication.",
+          "format": "email"
+        },
+        "contactNumber": {
+          "type": "string",
+          "description": "The primary contact number of the user."
+        },
+        "preferredLanguage": {
+          "type": "string",
+          "description": "The user's preferred language for the application interface (e.g., 'en' for English, 'kn' for Kannada)."
+        },
+        "registrationDate": {
+          "type": "string",
+          "description": "The date and time when the user registered.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "fullName",
+        "email",
+        "contactNumber",
+        "preferredLanguage",
+        "registrationDate"
+      ]
+    },
+    "Farm": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Farm",
+      "type": "object",
+      "description": "Represents a specific agricultural land owned or managed by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Farm entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who owns this farm. (Relationship: User 1:N Farm)"
+        },
+        "name": {
+          "type": "string",
+          "description": "A user-defined name for the farm."
+        },
+        "address": {
+          "type": "string",
+          "description": "The physical address of the farm."
+        },
+        "latitude": {
+          "type": "number",
+          "description": "The geographical latitude of the farm for location-based services."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "The geographical longitude of the farm for location-based services."
+        },
+        "areaInAcres": {
+          "type": "number",
+          "description": "The size of the farm in acres."
+        },
+        "soilType": {
+          "type": "string",
+          "description": "The primary soil type of the farm, important for crop and fertilizer recommendations."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "name",
+        "address",
+        "latitude",
+        "longitude",
+        "areaInAcres",
+        "soilType"
+      ]
+    },
+    "Crop": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Crop",
+      "type": "object",
+      "description": "Represents master data for various agricultural crops.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Crop entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The common name of the crop."
+        },
+        "description": {
+          "type": "string",
+          "description": "A general description of the crop."
+        },
+        "plantingSeason": {
+          "type": "string",
+          "description": "Typical season for planting this crop (e.g., 'Kharif', 'Rabi', 'Year-round')."
+        },
+        "idealSoilTypes": {
+          "type": "array",
+          "description": "An array of suitable soil types for this crop.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "idealClimaticConditions": {
+          "type": "string",
+          "description": "A description of the ideal climatic conditions for this crop."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "plantingSeason",
+        "idealSoilTypes",
+        "idealClimaticConditions"
+      ]
+    },
+    "FertilizerProduct": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "FertilizerProduct",
+      "type": "object",
+      "description": "Stores detailed information about a specific fertilizer product, identified by its barcode.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the FertilizerProduct entity, typically the barcode number."
+        },
+        "barcode": {
+          "type": "string",
+          "description": "The actual barcode number of the fertilizer product."
+        },
+        "productName": {
+          "type": "string",
+          "description": "The commercial name of the fertilizer product."
+        },
+        "brandName": {
+          "type": "string",
+          "description": "The brand name of the fertilizer."
+        },
+        "npkComposition": {
+          "type": "string",
+          "description": "The NPK (Nitrogen, Phosphorus, Potassium) ratio of the fertilizer (e.g., '20:20:0')."
+        },
+        "suitableCropIds": {
+          "type": "array",
+          "description": "References to Crops for which this fertilizer is suitable. (Relationship: FertilizerProduct N:N Crop)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "recommendedSoilType": {
+          "type": "string",
+          "description": "The general soil type(s) recommended for this fertilizer's application."
+        },
+        "manufacturerDetails": {
+          "type": "string",
+          "description": "Information about the manufacturer of the fertilizer."
+        },
+        "expiryDate": {
+          "type": "string",
+          "description": "The expiry date of the fertilizer product.",
+          "format": "date"
+        },
+        "safetyPrecautions": {
+          "type": "string",
+          "description": "Important safety measures for handling and applying the fertilizer."
+        },
+        "recommendedDosagePerAcre": {
+          "type": "string",
+          "description": "General recommended dosage per acre (e.g., '10-15 kg')."
+        },
+        "mixingInstructions": {
+          "type": "string",
+          "description": "Instructions on how to mix the fertilizer, if applicable."
+        },
+        "applicationMethod": {
+          "type": "string",
+          "description": "The recommended method for applying the fertilizer (e.g., 'spray', 'soil application', 'drip irrigation')."
+        },
+        "bestTimeToApply": {
+          "type": "string",
+          "description": "The optimal time (e.g., time of day, crop stage) for applying the fertilizer."
+        },
+        "lastFetchedDate": {
+          "type": "string",
+          "description": "The date and time when this fertilizer product data was last fetched or verified.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "barcode",
+        "productName",
+        "brandName",
+        "npkComposition",
+        "suitableCropIds",
+        "recommendedSoilType",
+        "manufacturerDetails",
+        "expiryDate",
+        "safetyPrecautions",
+        "recommendedDosagePerAcre",
+        "mixingInstructions",
+        "applicationMethod",
+        "bestTimeToApply",
+        "lastFetchedDate"
+      ]
+    },
+    "CropRecommendation": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CropRecommendation",
+      "type": "object",
+      "description": "Stores AI-generated crop recommendations for a specific farm and user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the CropRecommendation entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User for whom the recommendation is made. (Relationship: User 1:N CropRecommendation)"
+        },
+        "farmId": {
+          "type": "string",
+          "description": "Reference to the Farm for which the recommendation is made. (Relationship: Farm 1:N CropRecommendation)"
+        },
+        "cropId": {
+          "type": "string",
+          "description": "Reference to the recommended Crop. (Relationship: Crop 1:N CropRecommendation)"
+        },
+        "season": {
+          "type": "string",
+          "description": "The season for which the crop recommendation is given."
+        },
+        "climaticConditionsAtRecommendation": {
+          "type": "string",
+          "description": "A snapshot of climatic conditions that influenced this recommendation."
+        },
+        "detailedRecommendation": {
+          "type": "string",
+          "description": "AI-generated detailed guidance for the recommended crop."
+        },
+        "recommendationDate": {
+          "type": "string",
+          "description": "The date and time when this recommendation was generated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "farmId",
+        "cropId",
+        "season",
+        "climaticConditionsAtRecommendation",
+        "detailedRecommendation",
+        "recommendationDate"
+      ]
+    },
+    "CropCalendarEntry": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CropCalendarEntry",
+      "type": "object",
+      "description": "Represents a scheduled farming activity within a crop calendar for a specific farm.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the CropCalendarEntry entity."
+        },
+        "farmId": {
+          "type": "string",
+          "description": "Reference to the Farm where this activity is scheduled. (Relationship: Farm 1:N CropCalendarEntry)"
+        },
+        "cropId": {
+          "type": "string",
+          "description": "Reference to the Crop associated with this activity. (Relationship: Crop 1:N CropCalendarEntry)"
+        },
+        "activityType": {
+          "type": "string",
+          "description": "The type of farming activity (e.g., 'sowing', 'irrigation', 'fertilization', 'harvesting')."
+        },
+        "scheduledDate": {
+          "type": "string",
+          "description": "The planned date for this activity.",
+          "format": "date"
+        },
+        "details": {
+          "type": "string",
+          "description": "Specific instructions or notes for the activity."
+        },
+        "isCompleted": {
+          "type": "boolean",
+          "description": "Indicates whether the activity has been marked as completed."
+        }
+      },
+      "required": [
+        "id",
+        "farmId",
+        "cropId",
+        "activityType",
+        "scheduledDate",
+        "details",
+        "isCompleted"
+      ]
+    },
+    "WeatherForecast": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "WeatherForecast",
+      "type": "object",
+      "description": "Stores cached weather forecast data for a specific farm's location.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the WeatherForecast entity."
+        },
+        "farmId": {
+          "type": "string",
+          "description": "Reference to the Farm for which this forecast is relevant. (Relationship: Farm 1:N WeatherForecast)"
+        },
+        "forecastDate": {
+          "type": "string",
+          "description": "The specific date for which the weather forecast applies.",
+          "format": "date"
+        },
+        "dayOfWeek": {
+          "type": "string",
+          "description": "The day of the week for the forecast (e.g., 'Monday')."
+        },
+        "temperatureHigh": {
+          "type": "number",
+          "description": "The maximum forecasted temperature for the day in Celsius."
+        },
+        "temperatureLow": {
+          "type": "number",
+          "description": "The minimum forecasted temperature for the day in Celsius."
+        },
+        "conditions": {
+          "type": "string",
+          "description": "A brief description of the weather conditions (e.g., 'Sunny', 'Partly Cloudy', 'Rain')."
+        },
+        "precipitationChance": {
+          "type": "number",
+          "description": "The probability of precipitation for the day, as a percentage (0-100%)."
+        },
+        "rainfallAmountMm": {
+          "type": "number",
+          "description": "The expected amount of rainfall in millimeters."
+        },
+        "humidity": {
+          "type": "number",
+          "description": "The relative humidity percentage."
+        },
+        "windSpeedKmph": {
+          "type": "number",
+          "description": "The wind speed in kilometers per hour."
+        },
+        "lastUpdated": {
+          "type": "string",
+          "description": "The date and time when this forecast record was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "farmId",
+        "forecastDate",
+        "dayOfWeek",
+        "temperatureHigh",
+        "temperatureLow",
+        "conditions",
+        "precipitationChance",
+        "rainfallAmountMm",
+        "humidity",
+        "windSpeedKmph",
+        "lastUpdated"
+      ]
+    },
+    "AgriculturalNews": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AgriculturalNews",
+      "type": "object",
+      "description": "Stores agricultural news articles relevant to farmers.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AgriculturalNews entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the news article."
+        },
+        "summary": {
+          "type": "string",
+          "description": "A short summary of the news article."
+        },
+        "contentUrl": {
+          "type": "string",
+          "description": "The URL to the full content of the news article.",
+          "format": "uri"
+        },
+        "source": {
+          "type": "string",
+          "description": "The publisher or source of the news article."
+        },
+        "publishedDate": {
+          "type": "string",
+          "description": "The date and time when the article was published.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "summary",
+        "contentUrl",
+        "source",
+        "publishedDate"
+      ]
+    },
+    "MandiPrice": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MandiPrice",
+      "type": "object",
+      "description": "Stores real-time mandi (market) prices for crops.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the MandiPrice entity."
+        },
+        "cropId": {
+          "type": "string",
+          "description": "Reference to the Crop whose price is being reported. (Relationship: Crop 1:N MandiPrice)"
+        },
+        "mandiLocation": {
+          "type": "string",
+          "description": "The name or identifier of the mandi (market) where the price is reported."
+        },
+        "pricePerUnit": {
+          "type": "number",
+          "description": "The price of the crop per unit."
+        },
+        "unit": {
+          "type": "string",
+          "description": "The unit of measurement for the price (e.g., 'kg', 'quintal')."
+        },
+        "reportDate": {
+          "type": "string",
+          "description": "The date and time when this price was reported.",
+          "format": "date-time"
+        },
+        "lastUpdated": {
+          "type": "string",
+          "description": "The date and time when this price record was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "cropId",
+        "mandiLocation",
+        "pricePerUnit",
+        "unit",
+        "reportDate",
+        "lastUpdated"
+      ]
+    },
+    "ExpertContact": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ExpertContact",
+      "type": "object",
+      "description": "Stores contact details of agricultural experts for personalized advice.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ExpertContact entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The full name of the agricultural expert."
+        },
+        "specialization": {
+          "type": "string",
+          "description": "The area of expertise of the agricultural expert (e.g., 'Agronomy', 'Horticulture')."
+        },
+        "contactNumber": {
+          "type": "string",
+          "description": "The phone number of the expert."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the expert.",
+          "format": "email"
+        },
+        "region": {
+          "type": "string",
+          "description": "The geographic region the expert covers or is based in."
+        },
+        "organization": {
+          "type": "string",
+          "description": "The organization the expert belongs to (optional)."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "specialization",
+        "contactNumber",
+        "email",
+        "region"
+      ]
+    },
+    "AgriculturalResource": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AgriculturalResource",
+      "type": "object",
+      "description": "Stores information about nearby agricultural resources like seed stores, fertilizer shops, and mandis.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AgriculturalResource entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the agricultural resource or shop."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of resource (e.g., 'seed store', 'fertilizer shop', 'mandi')."
+        },
+        "address": {
+          "type": "string",
+          "description": "The full physical address of the resource."
+        },
+        "latitude": {
+          "type": "number",
+          "description": "The geographical latitude of the resource."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "The geographical longitude of the resource."
+        },
+        "contactNumber": {
+          "type": "string",
+          "description": "The contact number for the resource."
+        },
+        "website": {
+          "type": "string",
+          "description": "The website URL for the resource (optional).",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "type",
+        "address",
+        "latitude",
+        "longitude",
+        "contactNumber"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores individual user profiles. Access is restricted to the owning user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, matching request.auth.uid."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/farms/{farmId}",
+        "definition": {
+          "entityName": "Farm",
+          "schema": {
+            "$ref": "#/backend/entities/Farm"
+          },
+          "description": "Stores farm details owned by a specific user. Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, matching request.auth.uid."
+            },
+            {
+              "name": "farmId",
+              "description": "The unique identifier of the farm."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/crops/{cropId}",
+        "definition": {
+          "entityName": "Crop",
+          "schema": {
+            "$ref": "#/backend/entities/Crop"
+          },
+          "description": "Master data for various agricultural crops. This collection is publicly readable by all authenticated users.",
+          "params": [
+            {
+              "name": "cropId",
+              "description": "The unique identifier of the crop."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/fertilizer_products/{barcode}",
+        "definition": {
+          "entityName": "FertilizerProduct",
+          "schema": {
+            "$ref": "#/backend/entities/FertilizerProduct"
+          },
+          "description": "Global master data for fertilizer products. Documents are identified by their barcode number for direct, efficient lookups. This collection is readable by all authenticated users, supporting authorization independence.",
+          "params": [
+            {
+              "name": "barcode",
+              "description": "The barcode number of the fertilizer product, serving as its document ID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/farms/{farmId}/fertilizer_ai_advice/{adviceId}",
+        "definition": {
+          "entityName": "FertilizerAIAdvice",
+          "schema": {
+            "$ref": "#/backend/entities/FertilizerAIAdvice"
+          },
+          "description": "Stores personalized AI-generated fertilizer advice based on a specific fertilizer, farm, and crop context for a user. Includes denormalized 'userId' and 'farmId' for robust authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, matching request.auth.uid."
+            },
+            {
+              "name": "farmId",
+              "description": "The unique identifier of the farm."
+            },
+            {
+              "name": "adviceId",
+              "description": "The unique identifier for the AI-generated fertilizer advice."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/farms/{farmId}/crop_recommendations/{recommendationId}",
+        "definition": {
+          "entityName": "CropRecommendation",
+          "schema": {
+            "$ref": "#/backend/entities/CropRecommendation"
+          },
+          "description": "Stores AI-generated crop recommendations specific to a user's farm. Includes denormalized 'userId' and 'farmId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, matching request.auth.uid."
+            },
+            {
+              "name": "farmId",
+              "description": "The unique identifier of the farm."
+            },
+            {
+              "name": "recommendationId",
+              "description": "The unique identifier for the crop recommendation."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/farms/{farmId}/crop_calendar_entries/{entryId}",
+        "definition": {
+          "entityName": "CropCalendarEntry",
+          "schema": {
+            "$ref": "#/backend/entities/CropCalendarEntry"
+          },
+          "description": "Represents scheduled farming activities within a crop calendar for a specific farm. Includes denormalized 'farmId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, matching request.auth.uid."
+            },
+            {
+              "name": "farmId",
+              "description": "The unique identifier of the farm."
+            },
+            {
+              "name": "entryId",
+              "description": "The unique identifier for the crop calendar entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/farms/{farmId}/weather_forecasts/{forecastId}",
+        "definition": {
+          "entityName": "WeatherForecast",
+          "schema": {
+            "$ref": "#/backend/entities/WeatherForecast"
+          },
+          "description": "Stores cached weather forecast data for a specific farm's location. Includes denormalized 'farmId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, matching request.auth.uid."
+            },
+            {
+              "name": "farmId",
+              "description": "The unique identifier of the farm."
+            },
+            {
+              "name": "forecastId",
+              "description": "The unique identifier for the weather forecast record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/agricultural_news/{newsId}",
+        "definition": {
+          "entityName": "AgriculturalNews",
+          "schema": {
+            "$ref": "#/backend/entities/AgriculturalNews"
+          },
+          "description": "Stores agricultural news articles relevant to farmers. This collection is publicly readable by all authenticated users.",
+          "params": [
+            {
+              "name": "newsId",
+              "description": "The unique identifier of the news article."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/mandi_prices/{priceId}",
+        "definition": {
+          "entityName": "MandiPrice",
+          "schema": {
+            "$ref": "#/backend/entities/MandiPrice"
+          },
+          "description": "Stores real-time mandi (market) prices for crops. This collection is publicly readable by all authenticated users.",
+          "params": [
+            {
+              "name": "priceId",
+              "description": "The unique identifier for the mandi price record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/expert_contacts/{expertId}",
+        "definition": {
+          "entityName": "ExpertContact",
+          "schema": {
+            "$ref": "#/backend/entities/ExpertContact"
+          },
+          "description": "Stores contact details of agricultural experts. This collection is publicly readable by all authenticated users.",
+          "params": [
+            {
+              "name": "expertId",
+              "description": "The unique identifier for the expert contact."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/agricultural_resources/{resourceId}",
+        "definition": {
+          "entityName": "AgriculturalResource",
+          "schema": {
+            "$ref": "#/backend/entities/AgriculturalResource"
+          },
+          "description": "Stores information about nearby agricultural resources. This collection is publicly readable by all authenticated users.",
+          "params": [
+            {
+              "name": "resourceId",
+              "description": "The unique identifier for the agricultural resource."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure prioritizes Authorization Independence and Query-Aware Security Rules (QAPs) by carefully segregating data and denormalizing authorization context where necessary. For the 'Fertilizer Info' feature, master data like `FertilizerProduct` and `Crop` are stored in top-level, globally readable collections (`/fertilizer_products/{barcode}` and `/crops/{cropId}`). This design ensures that product details and usage instructions can be fetched directly and efficiently via barcode, without needing to evaluate complex, hierarchical security rules. Access to these master data collections is independent of any specific user or farm context, making rules simple (e.g., 'allow read: if request.auth != null;').\n\nUser-specific and farm-specific data, such as `Farm` information, `CropRecommendation`, `CropCalendarEntry`, `WeatherForecast`, and crucially, the new `FertilizerAIAdvice` (which stores personalized AI guidance for fertilizer application), are nested under the user's path: `/users/{userId}/farms/{farmId}/...`. This hierarchical structure intrinsically links the data to the owner. To further enhance Authorization Independence, documents within these user-owned collections (e.g., `Farm`, `FertilizerAIAdvice`, `CropRecommendation`) explicitly include the `userId` (and `farmId` for nested collections) as a field. This denormalization allows security rules to verify ownership directly from the document's contents (`resource.data.userId == request.auth.uid`) without performing expensive `get()` operations on parent documents. This supports atomic writes and simplifies debugging.\n\nQAPs are achieved through this structural segregation. For master data, direct `get()` operations using the document ID (like `barcode` for `FertilizerProduct`) are highly efficient. List operations on these master collections are acceptable, assuming appropriate indexing for any filters. For user-owned data, `list` and `get` operations are inherently scoped by the path (`/users/{userId}/...`), ensuring that users can only access their own data. This prevents broad, unindexed queries across private data, aligning perfectly with QAP principles. The `FertilizerAIAdvice` entity, which stores dynamic, AI-generated content specific to a user's farm and crop, demonstrates this by being privately stored under the user's farm, making its retrieval secure and efficient."
+  }
+}
