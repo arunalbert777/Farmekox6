@@ -5,19 +5,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Barcode, Calculator, Loader2, Camera, Send, Sparkles, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Calculator, Loader2, Camera, Send, Sparkles, AlertCircle, CheckCircle2 } from "lucide-react";
 import { useLanguage } from "@/lib/hooks";
 import { getFertilizerProductInfo, type FertilizerProductInfo } from "@/ai/flows/fertilizer-recommendation";
-import { getPersonalizedFertilizerAdvice, type FertilizerAIAdviceOutput } from "@/ai/flows/fertilizer-ai-advice";
+import { getPersonalizedFertilizerAdvice } from "@/ai/flows/fertilizer-ai-advice";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useFirestore, useDoc, useMemoFirebase } from "@/firebase";
+import { useFirestore, useDoc, useMemoFirebase, useUser } from "@/firebase";
 import { doc } from "firebase/firestore";
 
 export default function FertilizerInfoPage() {
   const { t, language } = useLanguage();
   const { toast } = useToast();
   const db = useFirestore();
+  const { user } = useUser();
 
   const [barcode, setBarcode] = useState("");
   const [productInfo, setProductInfo] = useState<FertilizerProductInfo | null>(null);
@@ -34,11 +35,13 @@ export default function FertilizerInfoPage() {
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Firestore lookup for existing product
+  // Firestore lookup for existing product. 
+  // CRITICAL: We depend on 'user' to ensure the listener only starts once authenticated.
   const productRef = useMemoFirebase(() => {
-    if (!db || !barcode) return null;
+    if (!db || !barcode || !user) return null;
     return doc(db, 'fertilizer_products', barcode);
-  }, [db, barcode]);
+  }, [db, barcode, user]);
+  
   const { data: firestoreProduct, isLoading: isLookupLoading } = useDoc(productRef);
 
   useEffect(() => {
@@ -90,7 +93,6 @@ export default function FertilizerInfoPage() {
     try {
       // If we found it in Firestore, use that first
       if (firestoreProduct) {
-        // Map Firestore definition to UI structure (assume schema matches roughly)
         setProductInfo({
             productName: firestoreProduct.productName,
             brandName: firestoreProduct.brandName,
@@ -144,7 +146,7 @@ export default function FertilizerInfoPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl space-y-6">
+    <div className="container mx-auto max-w-4xl space-y-6 pb-12">
       <div className="text-center mb-6">
         <div className="mx-auto bg-primary/10 p-4 rounded-full w-fit">
           <Calculator className="size-8 text-primary" />
@@ -192,7 +194,7 @@ export default function FertilizerInfoPage() {
                 </div>
               </div>
               <Button onClick={handleFetchProduct} disabled={loading || isLookupLoading} className="w-full">
-                {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Send className="mr-2 size-4" />}
+                {loading || isLookupLoading ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Send className="mr-2 size-4" />}
                 Identify Product
               </Button>
             </div>
@@ -200,12 +202,12 @@ export default function FertilizerInfoPage() {
         </Card>
 
         {productInfo && (
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-2 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <Card className="border-primary/20">
               <CardHeader className="bg-primary/5">
                 <div className="flex items-center gap-2">
                     <CheckCircle2 className="size-5 text-green-600" />
-                    <CardTitle>{productInfo.productName}</CardTitle>
+                    <CardTitle className="text-xl">{productInfo.productName}</CardTitle>
                 </div>
                 <CardDescription>{productInfo.brandName}</CardDescription>
               </CardHeader>
@@ -232,7 +234,7 @@ export default function FertilizerInfoPage() {
                 </div>
                 <Alert variant="default" className="bg-amber-50 border-amber-200">
                     <AlertCircle className="size-4 text-amber-600" />
-                    <AlertTitle className="text-amber-800 text-xs">Safety Precaution</AlertTitle>
+                    <AlertTitle className="text-amber-800 text-xs font-bold">Safety Precaution</AlertTitle>
                     <AlertDescription className="text-amber-700 text-xs">
                         {productInfo.safetyPrecautions}
                     </AlertDescription>
@@ -244,7 +246,7 @@ export default function FertilizerInfoPage() {
               <CardHeader>
                 <CardTitle>Usage Instructions</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-4">
                 <div className="flex gap-3">
                     <div className="bg-primary/10 text-primary rounded-full size-6 flex items-center justify-center flex-shrink-0 text-xs font-bold">1</div>
                     <div><p className="font-semibold text-sm">Dosage</p><p className="text-xs text-muted-foreground">{productInfo.usageInstructions.dosagePerAcre}</p></div>
@@ -268,7 +270,7 @@ export default function FertilizerInfoPage() {
               </CardContent>
             </Card>
 
-            <Card className="md:col-span-2 border-sparkle bg-gradient-to-br from-primary/5 to-transparent">
+            <Card className="md:col-span-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
               <CardHeader>
                 <div className="flex items-center gap-2">
                     <Sparkles className="size-5 text-primary" />
@@ -297,7 +299,7 @@ export default function FertilizerInfoPage() {
                 </Button>
 
                 {aiAdvice && (
-                  <div className="mt-4 p-4 rounded-lg bg-background border whitespace-pre-wrap text-sm leading-relaxed">
+                  <div className="mt-4 p-4 rounded-lg bg-background border border-primary/20 shadow-inner whitespace-pre-wrap text-sm leading-relaxed animate-in fade-in duration-300">
                     {aiAdvice}
                   </div>
                 )}
