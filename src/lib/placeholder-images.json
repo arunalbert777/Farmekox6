@@ -2,69 +2,63 @@
   "placeholderImages": [
     {
       "id": "app-logo",
-      "description": "Farmekox Official Leaf X Logo",
-      "imageUrl": "https://images.unsplash.com/photo-1744526313213-5e9e0d736b2d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxsZWFmJTIwbG9nb3xlbnwwfHx8fDE3NzI0NzQxNDV8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "leaf logo"
+      "description": "Farmekox Official Green Leaf Logo",
+      "imageUrl": "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxsZWFmJTIwZ3JlZW58ZW58MHx8fHwxNzczMDI0NjE1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "green leaf"
     },
     {
       "id": "expert1",
-      "description": "Portrait of Dr. Anjali Sharma, an agronomist.",
-      "imageUrl": "https://images.unsplash.com/photo-1526510747491-58f928ec870f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwb3J0cmFpdCUyMHdvbWFufGVufDB8fHx8MTc2OTk3OTE2MXww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "portrait woman"
+      "description": "Dr. Anjali Sharma - Agricultural Scientist",
+      "imageUrl": "https://images.unsplash.com/photo-1594167543413-3fe732a3eda1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxpbmRpYW4lMjB3b21hbiUyMHByb2Zlc3Npb25hbHxlbnwwfHx8fDE3NzMwMjQ2MTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "indian woman professional"
     },
     {
       "id": "expert2",
-      "description": "Portrait of Mr. Vikram Singh, a soil scientist.",
-      "imageUrl": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxwb3J0cmFpdCUyMG1hbnxlbnwwfHx8fDE3Njk5Njg2NDF8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "portrait man"
+      "description": "Mr. Vikram Singh - Soil Specialist",
+      "imageUrl": "https://images.unsplash.com/photo-1548142813-c348350df52b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxpbmRpYW4lMjBtYW4lMjBmYXJtZXJ8ZW58MHx8fHwxNzczMDI0NjE1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "indian man farmer"
     },
     {
       "id": "expert3",
-      "description": "Portrait of Dr. Priya Patel, a pest control expert.",
-      "imageUrl": "https://images.unsplash.com/photo-1558222218-b7b54eede3f3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxwb3J0cmFpdCUyMHByb2Zlc3Npb25hbHxlbnwwfHx8fDE3Njk5ODYwNDB8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "portrait professional"
+      "description": "Dr. Priya Patel - Plant Pathologist",
+      "imageUrl": "https://images.unsplash.com/photo-1551836022-d5d88e9218df?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxmZW1hbGUlMjBzY2llbnRpc3R8ZW58MHx8fHwxNzczMDI0NjE1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "female scientist"
     },
     {
-      "id": "news1",
-      "description": "A tractor in a field during sunrise.",
-      "imageUrl": "https://images.unsplash.com/photo-1651043501781-1dfea7a229c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx0cmFjdG9yJTIwZmllbGR8ZW58MHx8fHwxNzY5ODk3MDM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "id": "news-tractor",
+      "description": "Modern tractor in field at sunset",
+      "imageUrl": "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx0cmFjdG9yJTIwZmllbGR8ZW58MHx8fHwxNzczMDI0NjE1fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "tractor field"
     },
     {
-      "id": "news2",
-      "description": "Close up of wheat grains.",
-      "imageUrl": "https://images.unsplash.com/photo-1624979280045-edee473548de?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx3aGVhdCUyMGdyYWluc3xlbnwwfHx8fDE3Njk5ODYwNDB8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "wheat grains"
+      "id": "news-wheat",
+      "description": "Golden wheat field",
+      "imageUrl": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx3aGVhdCUyMGZpZWxkfGVufDB8fHx8MTc3MzAyNDYxNXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "wheat field"
     },
     {
       "id": "hero-farm",
-      "description": "A beautiful landscape of a farm.",
-      "imageUrl": "https://images.unsplash.com/photo-1451440063999-77a8b2960d2b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxmYXJtJTIwbGFuZHNjYXBlfGVufDB8fHx8MTc2OTg2OTczMHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "description": "Vibrant green farm landscape",
+      "imageUrl": "https://images.unsplash.com/photo-1451440063999-77a8b2960d2b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxmYXJtJTIwbGFuZHNjYXBlfGVufDB8fHx8MTc3MzAyNDYxNXww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "farm landscape"
     },
     {
-      "id": "farm-background",
-      "description": "An aerial view of a farm.",
-      "imageUrl": "https://images.unsplash.com/photo-1516822277566-bb38424a2b77?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxhZXJpYWwlMjBmYXJtfGVufDB8fHx8MTc2OTk4NjA0MHww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "aerial farm"
-    },
-    {
       "id": "product-tomatoes",
-      "description": "A basket of fresh tomatoes.",
-      "imageUrl": "https://images.unsplash.com/photo-1683009118690-a5851ccb1112?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxmcmVzaCUyMHRvbWF0b2VzfGVufDB8fHx8MTc2OTk1NDgyNnww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "fresh tomatoes"
+      "description": "Vine-ripened tomatoes",
+      "imageUrl": "https://images.unsplash.com/photo-1524593166156-312f362cada0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx0b21hdG9lc3xlbnwwfHx8fDE3NzMwMjQ2MTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "tomatoes"
     },
     {
       "id": "product-potatoes",
-      "description": "A pile of freshly harvested potatoes.",
-      "imageUrl": "https://images.unsplash.com/photo-1741517922282-45b999eb9e49?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxmcmVzaCUyMHBvdGF0b2VzfGVufDB8fHx8MTc2OTk5MDA1NXww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "fresh potatoes"
+      "description": "Organic potatoes",
+      "imageUrl": "https://images.unsplash.com/photo-1518977676601-b53f02ac6d31?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxwb3RhdG9lc3xlbnwwfHx8fDE3NzMwMjQ2MTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "potatoes"
     },
     {
       "id": "product-onions",
-      "description": "A bunch of red onions.",
-      "imageUrl": "https://images.unsplash.com/photo-1641738219797-c814f6fab4d3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxyZWQlMjBvbmlvbnN8ZW58MHx8fHwxNzY5OTkwMDU0fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "red onions"
+      "description": "Red onions",
+      "imageUrl": "https://images.unsplash.com/photo-1580201092675-a0a6a6cafbb1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxvbmlvbnN8ZW58MHx8fHwxNzczMDI0NjE2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "onions"
     }
   ]
 }
