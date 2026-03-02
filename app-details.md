@@ -13,7 +13,7 @@ The primary goals of the Farmekox project are specific, measurable, and outcome-
 
 1.  **Develop an AI-Driven Crop Recommendation System:** To provide farmers with intelligent crop suggestions based on their geographical location, the current season, and specific climatic conditions, aiming to increase yield potential and profitability.
 2.  **Implement a Multilingual AI Advisory Service:** To create an interactive voice and chat-based advisory platform using AI that supports both English and Kannada, making expert-level advice accessible to a broader audience.
-3.  **Create a Smart Fertilizer Calculator:** To build a tool that uses AI to identify fertilizer details, recommend appropriate dosages, and provide step-by-step usage instructions based on a product's barcode.
+3.  **Create a Smart Fertilizer Info System:** To build a tool that uses AI to identify product details via barcode (agricultural or general goods), providing exact product specifications and step-by-step usage instructions.
 4.  **Provide Actionable Weather Insights:** To deliver real-time weather forecasts and generate AI-based irrigation advice, helping farmers optimize water usage and protect crops from adverse weather.
 5.  **Establish a Direct Sales Platform:** To empower farmers by creating a map-based marketplace where they can pin their produce for sale, connecting them directly with local consumers and improving their profit margins.
 6.  **Offer a "Market Watch" Feature:** To keep farmers informed with live mandi (market) prices and the latest agricultural news, enabling better sales decisions.
@@ -78,15 +78,15 @@ Below is a logical representation of the system's architecture.
  (For Maps, Places, Geolocation)
 ```
 
-### Data Flow Example (Fertilizer Calculator)
+### Data Flow Example (Fertilizer Info)
 
-1.  **User Interaction:** A farmer opens the "Fertilizer Calculator" on their phone and enters a barcode number.
-2.  **Client Request:** The React component triggers a Next.js Server Action (`getFertilizerRecommendation`), passing the barcode.
-3.  **Backend Processing:** The Server Action invokes the corresponding Genkit flow (`fertilizerRecommendationFlow`).
-4.  **AI Invocation:** The Genkit flow constructs a prompt using the barcode and sends it to the Gemini API. The prompt specifically instructs the AI to act as an agricultural expert and generate plausible details (name, composition, dosage, usage) for the given barcode.
-5.  **AI Response:** The Gemini API processes the request and returns a structured JSON object that matches the Zod schema defined in the flow.
+1.  **User Interaction:** A user opens the "Fertilizer Info" on their phone and enters a barcode number (scanned or manual).
+2.  **Client Request:** The React component triggers a Next.js Server Action (`getFertilizerProductInfo`), passing the barcode.
+3.  **Backend Processing:** The Server Action invokes the corresponding Genkit flow (`fertilizerProductInfoFlow`).
+4.  **AI Invocation:** The Genkit flow analyzes the barcode prefix (e.g., 890 for India) and queries its real-time knowledge base for the exact manufacturer and product details.
+5.  **AI Response:** The Gemini API returns a structured JSON object containing brand details, NPK (if applicable), and a 5-step usage guide.
 6.  **Return to Client:** The Genkit flow passes the JSON response back through the Server Action to the React component.
-7.  **UI Update:** The component updates its state with the received data and displays the fertilizer's name, composition, recommended dosage, and step-by-step instructions to the user.
+7.  **UI Update:** The component updates its state and displays the product profile and step-by-step instructions.
 
 ---
 
@@ -98,7 +98,7 @@ The Farmekox application is divided into the following well-defined modules:
 2.  **Crop Recommendation:** An AI-powered form where users input their location, season, and climate to receive a list of suitable crops and the reasoning behind the recommendations.
 3.  **Crop Calendar:** An interactive calendar for farmers to schedule and view important agricultural activities like sowing, irrigation, and harvesting.
 4.  **Weather & Irrigation:** Displays a 7-day weather forecast and integrates an AI tool that advises farmers on whether to skip irrigation based on predicted rainfall.
-5.  **Fertilizer Calculator:** An AI-driven tool that provides detailed fertilizer information, including composition, dosage, and usage instructions, from a scanned or manually entered barcode.
+5.  **Fertilizer Info:** An AI-driven system that provides exact product profiles and step-by-step usage instructions for any product identified via barcode scanning or manual entry.
 6.  **Market Watch:** A section that displays the latest commodity prices from major mandis and aggregates relevant agricultural news.
 7.  **AI Advisory:** A multilingual (English/Kannada) chat and voice interface powered by Gemini. It provides text-to-speech audio responses, making it highly accessible.
 8.  **Ask an Expert:** A directory page listing profiles and contact information for local agricultural experts in the Bengaluru area.
@@ -137,28 +137,26 @@ Farmekox is designed to be a farmer's digital companion, guiding them through th
 A farmer begins their journey on the **Dashboard**, which acts as a central control panel. It presents a clean, tile-based layout, allowing for quick navigation to any of the app's powerful features.
 
 **1. Planning & Preparation:**
-Before planting, the farmer can navigate to the **Crop Recommendation** module. Here, they enter their location (e.g., "Mysuru"), the current season ("Summer"), and a brief description of the climate ("Hot and dry"). The app sends this information to the Gemini AI, which analyzes the data and returns a list of recommended crops like Ragi or Maize, along with a detailed explanation of why these crops are suitable for the given conditions.
+Before planting, the farmer can navigate to the **Crop Recommendation** module. Here, they enter their location, the current season, and a brief description of the climate. The app sends this information to the Gemini AI, which analyzes the data and returns a list of recommended crops like Ragi or Maize, along with a detailed explanation of why these crops are suitable for the given conditions.
 
 Once a crop is chosen, the farmer uses the **Crop Calendar** to schedule key activities. They can create entries for "Sowing," "Fertilizing," and "Harvesting," building a clear timeline for the months ahead.
 
 **2. Daily Operations & Management:**
 On a daily basis, the farmer opens the **Weather** module. They see a 7-day forecast for their area. More importantly, they can use the "Get Irrigation Advice" feature. By inputting their crop type, the AI analyzes the weather forecast (specifically the chance of rain) and advises them, for instance, to "Skip irrigation today as there is a high chance of rain," conserving water and effort.
 
-When it's time to apply fertilizer, the farmer uses the **Fertilizer Calculator**. They can either use their phone's camera to view a barcode or type it in manually. The barcode is sent to the Gemini AI, which, acting as an expert, generates a complete profile for the product. This includes its chemical composition, recommended dosage (e.g., "50 kg/acre for rice"), and simple, step-by-step usage instructions.
+When it's time to apply fertilizer or check any product used on the farm, the farmer uses the **Fertilizer Info** system. They can either use their phone's camera to scan a barcode or type it in manually. The barcode is sent to the Gemini AI, which identifies the exact product (e.g., Navaratna Oil or a specific fertilizer). The AI then generates a complete profile and a 5-step usage guide covering dosage, mixing, application, timing, and safety.
 
 **3. Information & Support:**
-If the farmer encounters an unexpected pest or has a general question, they can turn to the **AI Advisory** module. They can type or speak their query in either English or Kannada. The AI provides a helpful, concise answer. To enhance accessibility, the AI's text response is converted to speech and played back, making it easy for users with varying literacy levels to understand. For more complex problems beyond the AI's scope, the **Ask an Expert** page provides a list of real-world specialists in Bengaluru whom they can call or message.
+If the farmer encounters an unexpected pest or has a general question, they can turn to the **AI Advisory** module. They can type or speak their query in either English or Kannada. The AI provides a helpful, concise answer. To enhance accessibility, the AI's text response is converted to speech and played back. For more complex problems, the **Ask an Expert** page provides a list of real-world specialists in Bengaluru.
 
 **4. Market & Sales:**
-As harvest approaches, the farmer consults the **Market Watch** to check the current mandi prices for their crop, helping them decide the best time to sell. To find buyers or necessary supplies, they use the **Nearby Resources** map, where they can search for "seed stores" or "mandis" near their location.
+As harvest approaches, the farmer consults the **Market Watch** to check the current mandi prices for their crop. To find buyers or necessary supplies, they use the **Nearby Resources** map, where they can search for "seed stores" or "mandis" near their location.
 
-Finally, to maximize their profits, the farmer can bypass intermediaries using the **Direct Sales** module. They can add a pin on the map at their farm's location, list their "Fresh Tomatoes" at "₹30/kg," and wait for local customers to connect with them directly. This feature fosters a farm-to-table ecosystem, benefiting both the farmer and the consumer.
+Finally, to maximize their profits, the farmer can bypass intermediaries using the **Direct Sales** module. They can add a pin on the map at their farm's location, list their produce, and wait for local customers to connect with them directly.
 
 ---
 
 ## 8. Project File Structure
-
-Here is a high-level overview of the important files and directories in the project:
 
 ```text
 src/
@@ -166,7 +164,7 @@ src/
 │   ├── flows/
 │   │   ├── ai-voice-chat-advisory.ts     # AI flow for voice/chat advisory
 │   │   ├── crop-recommendation.ts        # AI flow for crop suggestions
-│   │   ├── fertilizer-recommendation.ts  # AI flow for fertilizer details
+│   │   ├── fertilizer-recommendation.ts  # AI flow for real-time product identification
 │   │   └── rain-alert-irrigation-advice.ts # AI flow for irrigation advice
 │   ├── dev.ts                            # Genkit development server entrypoint
 │   └── genkit.ts                         # Genkit AI plugin configuration
@@ -183,12 +181,12 @@ src/
 │   ├── layout/                           # Layout components (sidebar, header)
 │   └── ui/                               # Reusable UI components from ShadCN
 ├── context/
-│   └── language-context.tsx              # React context for language management (EN/KN)
+│   └── language-context.tsx              # React context for language management
 ├── hooks/
-│   ├── use-language.ts                   # Custom hook for accessing language context
-│   └── use-toast.ts                      # Custom hook for showing toast notifications
+│   ├── use-language.ts                   # Custom hook for language access
+│   └── use-toast.ts                      # Custom hook for notifications
 └── lib/
     ├── placeholder-images.json           # Data for placeholder images
-    ├── translations.ts                   # English and Kannada translation strings
-    └── utils.ts                          # Utility functions (e.g., cn for Tailwind)
+    ├── translations.ts                   # English and Kannada translations
+    └── utils.ts                          # Utility functions
 ```

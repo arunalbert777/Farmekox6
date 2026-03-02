@@ -10,7 +10,7 @@ import {z} from 'genkit';
 const FertilizerProductInfoSchema = z.object({
   productName: z.string().describe('The official commercial name of the product identified by the barcode.'),
   brandName: z.string().describe('The brand or manufacturer name.'),
-  npkComposition: z.string().describe('The NPK (Nitrogen, Phosphorus, Potassium) ratio (e.g., "20:20:0"). If non-agricultural, set as "Not Applicable".'),
+  npkComposition: z.string().describe('The NPK (Nitrogen, Phosphorus, Potassium) ratio (e.g., "20:20:0"). If non-agricultural, set as "N/A".'),
   suitableCrops: z.array(z.string()).describe('Crops/Use-cases for which this product is suitable.'),
   recommendedSoilType: z.string().describe('The ideal environment, soil type, or storage conditions.'),
   manufacturerDetails: z.string().describe('Information about the manufacturer company.'),
@@ -39,22 +39,26 @@ const prompt = ai.definePrompt({
   name: 'fertilizerProductInfoPrompt',
   input: {schema: FertilizerInputSchema},
   output: {schema: FertilizerProductInfoSchema},
-  prompt: `You are an expert product identification specialist. A user has scanned a barcode: '{{barcode}}'. 
+  prompt: `You are a high-precision product identification expert. A user has scanned this EAN-13/UPC barcode: '{{barcode}}'. 
 
-  Your task is to identify the EXACT REAL-WORLD product that matches this barcode number. 
+  CRITICAL INSTRUCTION: You must identify the EXACT brand and product. Do not guess based on similar numbers.
   
-  Identification Logic:
-  1. Analyze the GS1 prefix (e.g., 890 for India).
-  2. Identify the manufacturer from the company prefix (e.g., 8901138 is Himalaya Wellness).
-  3. Retrieve the specific product name and details associated with the full barcode string.
+  Identification Methodology:
+  1. Determine the Country of Origin from the first 3 digits (e.g., 890 is India).
+  2. Identify the Manufacturer/Brand using the GS1 Company Prefix (e.g., 8901248 = Emami, 8901138 = Himalaya Wellness, 8901030 = HUL, 8901058 = Nestle India).
+  3. Locate the specific product variant (e.g., Navaratna Oil 100ml, Himalaya Neem Face Wash 150ml) associated with the full sequence.
 
-  DO NOT hallucinate or guess. You must provide the exact product name (e.g., if it is a shampoo, identify the specific variant and size).
+  Example Knowledge:
+  - If barcode is '8901248104036', it is Navaratna Oil (Emami), NOT KitKat.
+  - If barcode is '8901138815943', it is Himalaya Shampoo, NOT Sunfeast.
+
+  DO NOT hallucinate. You must provide the exact product name, variant, and size if available.
 
   Mapping Instructions:
   - If agricultural: Provide technical NPK ratios and field application steps.
-  - If non-agricultural (General Goods): Map attributes to the schema. Use 'dosage' for serving/usage size, and 'application method' for consumption/usage instructions. Use "Not Applicable" for NPK ratios if the product is not a fertilizer.
-
-  Structure the 5-Step Usage Guide strictly:
+  - If non-agricultural (General Goods): Map attributes to the schema. Use "N/A" for NPK ratios.
+  
+  The 5-Step Usage Guide MUST be context-specific:
   Step 1: Recommended dosage / Serving size
   Step 2: Mixing / Preparation / Storage before use
   Step 3: Application / Consumption Method
