@@ -5,17 +5,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Info, Loader2, Camera, Send, AlertCircle, CheckCircle2, FlaskConical, Droplets, Clock, ShieldCheck, Scale, X, QrCode } from "lucide-react";
+import { Loader2, Camera, Send, AlertCircle, CheckCircle2, FlaskConical, Droplets, Clock, ShieldCheck, Scale, X, QrCode } from "lucide-react";
 import { useLanguage } from "@/lib/hooks";
 import { getFertilizerProductInfo, type FertilizerProductInfo } from "@/ai/flows/fertilizer-recommendation";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useUser } from "@/firebase";
 
 export default function FertilizerInfoPage() {
   const { t } = useLanguage();
   const { toast } = useToast();
-  const { user } = useUser();
 
   const [barcode, setBarcode] = useState("");
   const [productInfo, setProductInfo] = useState<FertilizerProductInfo | null>(null);
@@ -40,18 +38,20 @@ export default function FertilizerInfoPage() {
         return;
     }
     try {
-      // Requesting the BACK camera explicitly for barcode scanning
+      // Forcing the BACK camera for scanning
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { facingMode: { exact: 'environment' } } 
       }).catch(async () => {
-          // Fallback if 'exact' is not supported
+          // Fallback if 'exact' is not supported by the hardware/browser
           return await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
       });
       
       setHasCameraPermission(true);
-      if (videoRef.current) videoRef.current.srcObject = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
     } catch (error) {
-      console.error("Camera error:", error);
+      console.error("Camera access denied:", error);
       setHasCameraPermission(false);
     }
   };
@@ -73,7 +73,7 @@ export default function FertilizerInfoPage() {
   const handleFetchProduct = async () => {
     const trimmedBarcode = barcode.trim();
     if (!trimmedBarcode) {
-        toast({ variant: "destructive", title: "Missing Input", description: "Please enter a barcode or QR code content." });
+        toast({ variant: "destructive", title: "Input Required", description: "Please enter or scan a barcode/QR code." });
         return;
     }
     
@@ -81,12 +81,12 @@ export default function FertilizerInfoPage() {
     setProductInfo(null);
 
     try {
-      // Direct call to Gemini AI for real-time identification using our strict GS1 rules
+      // Real-time AI identification, bypassing Firestore
       const info = await getFertilizerProductInfo({ barcode: trimmedBarcode });
       setProductInfo(info);
-      setIsCameraOpen(false);
+      if (isCameraOpen) handleToggleCamera();
     } catch (err: any) {
-      toast({ variant: "destructive", title: "Identification Error", description: "Could not identify this product. Please check the code." });
+      toast({ variant: "destructive", title: "Identification Error", description: "Could not identify this code. Please try again." });
     } finally {
         setLoading(false);
     }
@@ -99,19 +99,19 @@ export default function FertilizerInfoPage() {
           <QrCode className="size-8 text-primary" />
         </div>
         <h1 className="font-headline text-3xl mt-4">{t("fertilizer_info_title")}</h1>
-        <p className="text-muted-foreground">Scan QR codes, EAN-13 barcodes, or enter HSN codes for instant product info.</p>
+        <p className="text-muted-foreground">Scan QR codes, EAN-13 barcodes, or HSN codes for instant product info.</p>
       </div>
 
       <div className="grid gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Scan or Enter Code</CardTitle>
-            <CardDescription>Works with Indian agricultural QR codes, HSN 3105 codes, and global EAN/UPC barcodes.</CardDescription>
+            <CardTitle>Product Identification</CardTitle>
+            <CardDescription>Enter any EAN, UPC, HSN, or QR code content for real-time identification.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {isCameraOpen && (
-              <div className="space-y-2 relative group">
-                  <video ref={videoRef} className="w-full aspect-video rounded-md bg-black object-cover" autoPlay muted playsInline />
+              <div className="space-y-2 relative group bg-black rounded-md overflow-hidden">
+                  <video ref={videoRef} className="w-full aspect-video object-cover" autoPlay muted playsInline />
                   <div className="absolute inset-0 border-2 border-primary/50 rounded-md pointer-events-none flex items-center justify-center">
                       <div className="w-3/4 h-0.5 bg-primary/40 animate-pulse shadow-[0_0_10px_rgba(var(--primary),0.5)]" />
                   </div>
@@ -124,23 +124,25 @@ export default function FertilizerInfoPage() {
                     <X className="size-4" />
                   </Button>
                   {hasCameraPermission === false && (
-                      <Alert variant="destructive">
-                          <AlertTitle>Camera Access Required</AlertTitle>
-                          <AlertDescription>Please enable camera permissions in settings to use the scanner. Ensure you allow access to the back camera.</AlertDescription>
-                      </Alert>
+                      <div className="absolute inset-0 flex items-center justify-center p-4 bg-black/60">
+                          <Alert variant="destructive" className="max-w-xs">
+                              <AlertTitle>Camera Access Required</AlertTitle>
+                              <AlertDescription>Please enable camera permissions in settings to use the scanner.</AlertDescription>
+                          </Alert>
+                      </div>
                   )}
               </div>
             )}
 
             <div className="flex flex-col gap-4">
               <div className="flex-1 space-y-2">
-                <Label htmlFor="barcode">Product Code (QR, EAN, UPC, GTIN, ISBN, HSN)</Label>
+                <Label htmlFor="barcode">Barcode / QR / HSN Code</Label>
                 <div className="flex gap-2">
                     <Input
                         id="barcode"
                         value={barcode}
                         onChange={(e) => setBarcode(e.target.value)}
-                        placeholder="Scan QR or enter e.g., 8901138815943"
+                        placeholder="Scan or enter code (e.g., 8901138815943)"
                         className="flex-1"
                         onKeyDown={(e) => e.key === 'Enter' && handleFetchProduct()}
                     />
@@ -151,7 +153,7 @@ export default function FertilizerInfoPage() {
               </div>
               <Button onClick={handleFetchProduct} disabled={loading} className="w-full h-12 text-lg">
                 {loading ? <Loader2 className="mr-2 size-5 animate-spin" /> : <Send className="mr-2 size-5" />}
-                {loading ? 'Identifying Product...' : 'Get Product Info'}
+                {loading ? 'Identifying...' : 'Get Product Info'}
               </Button>
             </div>
           </CardContent>
@@ -178,10 +180,10 @@ export default function FertilizerInfoPage() {
                         <p className="font-medium">{productInfo.expiryDate}</p>
                     </div>
                     <div>
-                        <Label className="text-xs uppercase text-muted-foreground font-bold">Recommended Use</Label>
+                        <Label className="text-xs uppercase text-muted-foreground font-bold">Suitable Crops</Label>
                         <div className="flex flex-wrap gap-1 mt-1">
                             {productInfo.suitableCrops.map(c => (
-                                <span key={c} className="bg-primary/10 text-primary-foreground text-primary px-2 py-0.5 rounded text-xs border border-primary/20">{c}</span>
+                                <span key={c} className="bg-primary/10 text-primary px-2 py-0.5 rounded text-xs border border-primary/20">{c}</span>
                             ))}
                         </div>
                     </div>
@@ -207,7 +209,7 @@ export default function FertilizerInfoPage() {
 
             <Card className="border-accent/30 shadow-md">
               <CardHeader className="bg-accent/5 border-b">
-                <CardTitle className="text-xl">Expert 5-Step Usage Guide</CardTitle>
+                <CardTitle className="text-xl">Step-by-Step Usage Instructions</CardTitle>
                 <CardDescription>Tailored instructions for effective results.</CardDescription>
               </CardHeader>
               <CardContent className="pt-6 space-y-6">

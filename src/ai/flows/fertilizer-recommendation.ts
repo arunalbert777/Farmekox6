@@ -42,38 +42,39 @@ const prompt = ai.definePrompt({
   output: {schema: FertilizerProductInfoSchema},
   prompt: `You are a specialized Indian agricultural and consumer product database expert. Your task is to identify the EXACT product for the provided input: '{{barcode}}'.
 
-  IDENTIFICATION PROTOCOL (STRICT):
-  1. ANALYZE INPUT TYPE:
-     - If numeric (8, 12, or 13 digits): Treat as EAN/UPC/GTIN.
-     - If 8 digits starting with 3105: Treat as HSN Code for Fertilizers (e.g., 31053000 is DAP).
-     - If alphanumeric string: Treat as content from an Indian Agricultural QR Code (IFFCO Traceability, Bayer/Syngenta unique unit ID).
-  
-  2. GS1 INDIA PREFIX LOOKUP (MANDATORY KNOWLEDGE):
-     - Barcode starting with 8901138... -> THIS IS HIMALAYA WELLNESS COMPANY. (e.g., 8901138815943 is Himalaya Purifying Neem Face Wash).
-     - Barcode starting with 8901248... -> THIS IS EMAMI LIMITED / NAVARATNA. (e.g., 8901248104036 is Navaratna Oil).
+  STRICT IDENTIFICATION PROTOCOLS (MANDATORY):
+
+  1. GS1 INDIA BRAND PREFIX MAPPING:
+     - 8901138... -> THIS IS EXCLUSIVELY HIMALAYA WELLNESS COMPANY. (e.g., 8901138815943 is Himalaya Purifying Neem Face Wash).
+     - 8901248... -> THIS IS EXCLUSIVELY EMAMI LIMITED / NAVARATNA. (e.g., 8901248104036 is Navaratna Oil).
      - 8901030... -> HINDUSTAN UNILEVER (HUL).
      - 8901058... -> NESTLE INDIA.
      - 8901495... -> ITC LIMITED.
      - 8901023... -> DABUR INDIA.
+
+  2. CRITICAL ERROR PREVENTION:
+     - DO NOT confuse prefixes. If it starts with 8901138, it is ALWAYS Himalaya.
+     - DO NOT confuse prefixes. If it starts with 8901248, it is ALWAYS Emami/Navaratna.
+     - NEVER return "Sunfeast" or "KitKat" for Himalaya or Emami barcodes.
   
   3. AGRICULTURAL DEEP LOOKUP:
      - IFFCO Nano Urea: Often identified by unique alphanumeric QR codes.
      - IFFCO Bharat DAP: HSN 31053000.
      - Syngenta/Bayer: 890 prefix + secondary QR code verification.
 
-  CRITICAL ERROR PREVENTION:
-  - DO NOT return "Sunfeast Yippee" for any 8901138 barcode. That prefix is exclusively Himalaya.
-  - DO NOT return "KitKat" for any 8901248 barcode. That prefix is exclusively Emami/Navaratna.
-  - If the product is non-agricultural (Shampoo, Oil, Food), adapt the "Steps" to be relevant usage/application/storage steps.
-  
   Instructions for Output:
-  - Step 1: Specific Dosage/Portion/Quantity per use.
-  - Step 2: Preparation or storage before use.
-  - Step 3: Application or consumption method.
-  - Step 4: Best time to use or apply.
-  - Step 5: Safety measures during or after use.
+  - For NON-AGRICULTURAL products (Face Wash, Oil, Food):
+    * NPK: "N/A"
+    * Step 1: Dosage/Serving size (e.g., "Use a coin-sized amount").
+    * Step 2: Preparation (e.g., "Wet face before use").
+    * Step 3: Method (e.g., "Massage gently in circular motions").
+    * Step 4: Best time to use (e.g., "Twice daily, morning and night").
+    * Step 5: Safety (e.g., "Avoid contact with eyes").
 
-  Perform a strict identification. If you identify the brand but not the specific variant, describe the brand's primary product associated with that barcode range accurately.`,
+  - For AGRICULTURAL products:
+    * Follow the standard 5-step expert guide for farmers.
+
+  Analyze the barcode '{{barcode}}' carefully and provide the exact real-world product details.`,
 });
 
 const fertilizerProductInfoFlow = ai.defineFlow(
