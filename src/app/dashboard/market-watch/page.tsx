@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useTransition, useEffect } from 'react';
@@ -26,8 +27,8 @@ export default function MarketWatchPage() {
   const [newsArticles, setNewsArticles] = useState<AgriculturalNewsOutput['articles']>([]);
   const [lastUpdated, setLastUpdated] = useState("");
 
-  // Initialize dates and initial news on mount to avoid hydration mismatch
   useEffect(() => {
+    // Set initial update time only on client to avoid hydration mismatch
     const now = new Date();
     setLastUpdated(now.toLocaleTimeString());
     
@@ -38,13 +39,11 @@ export default function MarketWatchPage() {
   const handleRefresh = () => {
     startTransition(async () => {
       try {
-        // 1. Fetch real-time AI news for 2026
         const newsResponse = await getAgriculturalNews({ 
           region: 'Karnataka, India',
           currentDate: '2026-07-25' 
         });
         
-        // 2. Update Mandi Prices with fluctuations
         const updatedPrices = mandiPrices.map(item => {
           const fluctuation = (Math.random() * 100 - 50);
           const newPrice = Math.max(100, Math.floor(item.price + fluctuation));
@@ -80,7 +79,7 @@ export default function MarketWatchPage() {
             {t('refresh')}
           </Button>
           {lastUpdated && (
-            <span className="text-xs text-muted-foreground bg-secondary px-3 py-1 rounded-full border border-primary/20">
+            <span className="text-xs text-muted-foreground bg-secondary px-3 py-1 rounded-full border border-primary/20 animate-in fade-in duration-500">
               Last updated: {lastUpdated}
             </span>
           )}

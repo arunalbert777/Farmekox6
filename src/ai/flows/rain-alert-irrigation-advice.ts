@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -22,7 +23,7 @@ const GetWeatherForecastInputSchema = z.object({
 
 const WeatherForecastOutputSchema = z.array(WeatherForecastSchema);
 
-const getWeatherForecast = ai.defineTool(
+const getWeatherForecastTool = ai.defineTool(
   {
     name: 'getWeatherForecast',
     description: 'Retrieves the 7-day weather forecast for a given location.',
@@ -66,17 +67,22 @@ export async function rainAlertIrrigationAdvice(
 
 const prompt = ai.definePrompt({
   name: 'rainAlertIrrigationAdvicePrompt',
-  input: {schema: RainAlertIrrigationAdviceInputSchema},
+  input: {
+    schema: z.object({
+      location: z.string(),
+      cropType: z.string(),
+      forecast: z.array(WeatherForecastSchema)
+    })
+  },
   output: {schema: RainAlertIrrigationAdviceOutputSchema},
-  tools: [getWeatherForecast],
-  prompt: `You are an expert agricultural advisor. Based on the weather forecast for {{{location}}} and the crop type {{{cropType}}}, advise the farmer on whether to skip irrigation.
+  prompt: `You are an expert agricultural advisor. Based on the provided weather forecast for {{{location}}} and the crop type {{{cropType}}}, advise the farmer on whether to skip irrigation.
 
-  Consider the following weather forecast for 2026:
-  {{#each (getWeatherForecast location=location)}}
+  Weather Forecast for 2026:
+  {{#each forecast}}
   - Date: {{date}}, Chance of Rain: {{chanceOfRain}}%
   {{/each}}
   
-  Give a short, concise answer.
+  Give a short, concise, and expert answer.
   `,
 });
 
@@ -87,7 +93,12 @@ const rainAlertIrrigationAdviceFlow = ai.defineFlow(
     outputSchema: RainAlertIrrigationAdviceOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
+    // Fetch tool data explicitly to avoid template errors
+    const forecast = await getWeatherForecastTool(input);
+    const {output} = await prompt({
+        ...input,
+        forecast
+    });
     return output!;
   }
 );
