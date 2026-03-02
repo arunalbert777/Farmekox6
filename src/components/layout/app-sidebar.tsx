@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -49,13 +50,13 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader>
         <div className="flex items-center gap-3 px-3 py-4">
-          <div className="relative size-10 flex-shrink-0">
+          <div className="relative size-12 flex-shrink-0 overflow-hidden rounded-xl shadow-md border-2 border-primary/20 bg-white">
             {logo && (
               <Image 
                 src={logo.imageUrl} 
                 alt="Farmekox Logo" 
                 fill 
-                className="object-contain rounded-lg shadow-sm"
+                className="object-cover"
               />
             )}
           </div>

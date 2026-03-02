@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -9,7 +10,7 @@ import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 /**
- * A PWA installation prompt component featuring the official Farmekox logo.
+ * A PWA installation prompt component featuring the official Farmekox "Leaf X" logo.
  */
 export function InstallPWAButton() {
   const { t } = useLanguage();
@@ -51,16 +52,16 @@ export function InstallPWAButton() {
     <Card className="mb-6 border-primary/50 bg-gradient-to-r from-primary/10 to-green-500/10 shadow-lg overflow-hidden animate-in fade-in slide-in-from-top-4 duration-500 ring-1 ring-primary/20">
       <CardContent className="p-4 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="relative bg-white p-1 rounded-2xl shadow-xl border-2 border-primary/20 size-16 flex-shrink-0">
+          <div className="relative bg-white p-1 rounded-2xl shadow-xl border-2 border-primary/20 size-16 flex-shrink-0 overflow-hidden">
             {logo && (
               <Image 
                 src={logo.imageUrl} 
                 alt="Farmekox Logo" 
                 fill 
-                className="object-contain p-1 rounded-xl"
+                className="object-cover rounded-xl"
               />
             )}
-            <Sparkles className="size-4 text-accent absolute -top-1 -right-1 animate-pulse" />
+            <Sparkles className="size-4 text-accent absolute top-0.5 right-0.5 animate-pulse z-10" />
           </div>
           <div>
             <h3 className="font-headline text-lg font-bold leading-tight text-primary">Install Farmekox</h3>
