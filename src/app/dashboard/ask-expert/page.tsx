@@ -1,8 +1,6 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Phone, MessageSquare, UserSquare, Star, MapPin } from 'lucide-react';
-import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Badge } from '@/components/ui/badge';
 
 const experts = [
@@ -14,7 +12,6 @@ const experts = [
     rating: 4.8,
     reviews: 124,
     description: "Expert in soil health and high-yield crop management specifically for the Karnataka region. Specializes in Ragi and Maize.",
-    image: PlaceHolderImages.find(img => img.id === 'expert1'),
     phone: "+91 98450 12345"
   },
   {
@@ -25,7 +22,6 @@ const experts = [
     rating: 4.5,
     reviews: 89,
     description: "15+ years experience in precise soil analysis and customized fertilizer schedules for organic and commercial farms.",
-    image: PlaceHolderImages.find(img => img.id === 'expert2'),
     phone: "+91 80234 56789"
   },
   {
@@ -36,7 +32,6 @@ const experts = [
     rating: 4.9,
     reviews: 210,
     description: "Leading expert in identifying and treating complex plant diseases using integrated pest management techniques.",
-    image: PlaceHolderImages.find(img => img.id === 'expert3'),
     phone: "+91 99001 88776"
   },
   {
@@ -87,40 +82,28 @@ export default function AskExpertPage() {
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {experts.map((expert) => (
           <Card key={expert.id} className="flex flex-col h-full overflow-hidden hover:shadow-lg transition-shadow border-primary/10">
-            <div className="relative h-48 bg-secondary/30">
-              {expert.image ? (
-                <Image
-                  src={expert.image.imageUrl}
-                  alt={expert.image.description}
-                  fill
-                  className="object-cover"
-                  data-ai-hint={expert.image.imageHint}
-                />
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <UserSquare className="size-16 text-muted-foreground/30" />
+            <CardHeader className="space-y-1 pb-2">
+              <div className="flex justify-between items-start mb-2">
+                <div className="bg-primary/10 p-2 rounded-full">
+                  <UserSquare className="size-6 text-primary" />
                 </div>
-              )}
-              <div className="absolute top-2 right-2">
-                <Badge variant="secondary" className="bg-white/90 backdrop-blur-sm text-primary font-bold shadow-sm">
+                <Badge variant="secondary" className="bg-secondary text-primary font-bold shadow-sm">
                   <Star className="size-3 mr-1 fill-primary" />
                   {expert.rating}
                 </Badge>
               </div>
-            </div>
-            <CardHeader className="space-y-1">
               <CardTitle className="text-xl">{expert.name}</CardTitle>
               <CardDescription className="text-primary font-bold uppercase text-xs tracking-wider">
                 {expert.specialty}
               </CardDescription>
-              <div className="flex items-center text-xs text-muted-foreground">
+              <div className="flex items-center text-xs text-muted-foreground pt-1">
                 <MapPin className="size-3 mr-1" />
                 {expert.location}
               </div>
             </CardHeader>
-            <CardContent className="flex-1">
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {expert.description}
+            <CardContent className="flex-1 pt-2">
+              <p className="text-sm text-muted-foreground leading-relaxed italic">
+                "{expert.description}"
               </p>
               <div className="mt-4 flex items-center gap-1">
                 <div className="flex">
@@ -132,7 +115,7 @@ export default function AskExpertPage() {
                   ))}
                 </div>
                 <span className="text-[10px] text-muted-foreground ml-1">
-                  ({expert.reviews} verified reviews)
+                  ({expert.reviews} reviews)
                 </span>
               </div>
             </CardContent>
