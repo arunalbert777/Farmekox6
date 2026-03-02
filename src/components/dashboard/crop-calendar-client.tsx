@@ -1,14 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { format, addDays, isSameDay } from "date-fns";
+import { format, addDays } from "date-fns";
 import { 
   Calendar as CalendarIcon, 
   Search, 
   Filter, 
   CheckCircle2, 
   Clock, 
-  AlertCircle,
   LayoutGrid,
   MapPin,
   TrendingUp,
@@ -19,23 +18,20 @@ import {
   Scissors
 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { 
   BarChart, 
   Bar, 
   XAxis, 
   YAxis, 
   CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
   PieChart,
   Pie,
   Cell
 } from "recharts";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 
 // Mock Data
 const yieldData = [
@@ -51,6 +47,19 @@ const sownAreaData = [
   { name: 'Tomato', value: 15, color: '#f59e0b' },
   { name: 'Maize', value: 17, color: '#94a3b8' },
 ];
+
+const yieldChartConfig = {
+  value: {
+    label: "Yield",
+    color: "hsl(var(--primary))",
+  },
+} satisfies ChartConfig;
+
+const sownChartConfig = {
+  value: {
+    label: "Area",
+  },
+} satisfies ChartConfig;
 
 const tasks = [
   { 
@@ -105,15 +114,15 @@ export function CropCalendarClient() {
             </CardTitle>
           </CardHeader>
           <CardContent className="h-[200px]">
-            <ResponsiveContainer width="100%" height="100%">
+            <ChartContainer config={yieldChartConfig}>
               <BarChart data={yieldData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={12} />
                 <YAxis hide />
-                <Tooltip cursor={{fill: 'transparent'}} content={<ChartTooltipContent hideLabel />} />
-                <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} barSize={30} />
+                <ChartTooltip cursor={{fill: 'transparent'}} content={<ChartTooltipContent hideLabel />} />
+                <Bar dataKey="value" fill="var(--color-value)" radius={[4, 4, 0, 0]} barSize={30} />
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
 
@@ -128,13 +137,13 @@ export function CropCalendarClient() {
             </div>
           </CardHeader>
           <CardContent className="flex flex-col items-center">
-            <div className="relative size-40">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="relative size-48">
+              <ChartContainer config={sownChartConfig}>
                 <PieChart>
                   <Pie
                     data={sownAreaData}
-                    innerRadius={50}
-                    outerRadius={70}
+                    innerRadius={60}
+                    outerRadius={80}
                     paddingAngle={5}
                     dataKey="value"
                   >
@@ -143,8 +152,8 @@ export function CropCalendarClient() {
                     ))}
                   </Pie>
                 </PieChart>
-              </ResponsiveContainer>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
+              </ChartContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                 <span className="text-2xl font-bold">43</span>
                 <span className="text-[10px] text-muted-foreground uppercase">ha</span>
               </div>
@@ -287,8 +296,7 @@ export function CropCalendarClient() {
                     <p className="text-sm text-green-700 font-medium">Your Farming Journey Starts Here.</p>
                 </div>
             </div>
-            {/* Visual background abstraction */}
-            <div className="absolute top-0 right-0 w-1/2 h-full opacity-10">
+            <div className="absolute top-0 right-0 w-1/2 h-full opacity-10 pointer-events-none">
                  <svg viewBox="0 0 100 100" className="w-full h-full fill-green-800">
                     <path d="M10,10 Q50,0 90,10 L90,90 Q50,100 10,90 Z" />
                  </svg>
