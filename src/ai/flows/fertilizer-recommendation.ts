@@ -1,35 +1,34 @@
 'use server';
 /**
- * @fileOverview A Genkit flow for providing detailed fertilizer information based on a barcode.
- * It identifies the product and provides a structured 5-step usage guide.
- * Now handles non-agricultural products as well.
+ * @fileOverview A Genkit flow for providing detailed real-time product information based on a barcode.
+ * It identifies real-world products (agricultural or general consumer goods) and provides structured guidance.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const FertilizerProductInfoSchema = z.object({
-  productName: z.string().describe('The commercial name of the fertilizer product.'),
-  brandName: z.string().describe('The brand name of the fertilizer.'),
-  npkComposition: z.string().describe('The NPK (Nitrogen, Phosphorus, Potassium) ratio (e.g., "20:20:0").'),
-  suitableCrops: z.array(z.string()).describe('Crops for which this fertilizer is suitable.'),
-  recommendedSoilType: z.string().describe('The general soil type(s) recommended.'),
-  manufacturerDetails: z.string().describe('Information about the manufacturer.'),
-  expiryDate: z.string().describe('Estimated expiry date or shelf life info.'),
-  safetyPrecautions: z.string().describe('General safety measures for storage and handling.'),
+  productName: z.string().describe('The official commercial name of the product identified by the barcode.'),
+  brandName: z.string().describe('The brand or manufacturer name.'),
+  npkComposition: z.string().describe('The NPK (Nitrogen, Phosphorus, Potassium) ratio (e.g., "20:20:0"). If non-agricultural, set as "Not Applicable".'),
+  suitableCrops: z.array(z.string()).describe('Crops/Use-cases for which this product is suitable.'),
+  recommendedSoilType: z.string().describe('The ideal environment, soil type, or storage conditions.'),
+  manufacturerDetails: z.string().describe('Information about the manufacturer company.'),
+  expiryDate: z.string().describe('Expiry date information or shelf life duration.'),
+  safetyPrecautions: z.string().describe('Critical safety measures for storage and handling.'),
   usageInstructions: z.object({
-    dosagePerAcre: z.string().describe('Step 1: Recommended dosage per acre.'),
-    mixingInstructions: z.string().describe('Step 2: Mixing instructions (if required).'),
-    applicationMethod: z.string().describe('Step 3: Application method (spray / soil application / drip irrigation).'),
-    bestTimeToApply: z.string().describe('Step 4: Best time to apply.'),
-    safetyMeasures: z.string().describe('Step 5: Specific safety measures during application.')
+    dosagePerAcre: z.string().describe('Step 1: Recommended dosage (per acre for fertilizers) or serving size.'),
+    mixingInstructions: z.string().describe('Step 2: Mixing or preparation instructions.'),
+    applicationMethod: z.string().describe('Step 3: How to apply or consume the product.'),
+    bestTimeToApply: z.string().describe('Step 4: Optimal timing for use or storage advice.'),
+    safetyMeasures: z.string().describe('Step 5: Specific safety measures during use/application.')
   })
 });
 
 export type FertilizerProductInfo = z.infer<typeof FertilizerProductInfoSchema>;
 
 const FertilizerInputSchema = z.object({
-  barcode: z.string().describe('The barcode number of the fertilizer bag.'),
+  barcode: z.string().describe('The barcode number of the product.'),
 });
 
 export async function getFertilizerProductInfo(input: { barcode: string }): Promise<FertilizerProductInfo> {
@@ -40,32 +39,22 @@ const prompt = ai.definePrompt({
   name: 'fertilizerProductInfoPrompt',
   input: {schema: FertilizerInputSchema},
   output: {schema: FertilizerProductInfoSchema},
-  prompt: `You are an expert product identification specialist. A user has scanned or entered a barcode: '{{barcode}}'. 
+  prompt: `You are an expert product identification specialist. A user has scanned a barcode: '{{barcode}}'. 
 
-  Identify the specific real-world product associated with this barcode. This could be an agricultural fertilizer or any other type of consumer product (e.g., food, electronics, household items).
+  Your task is to identify the REAL-WORLD product that exactly matches this barcode number. 
+  - If the product is an agricultural fertilizer: Provide technical NPK ratios, suitable crops, and field application steps.
+  - If the product is a general consumer good (e.g., food, beverage, electronics): Map its attributes to the requested schema. For example, use 'dosage' for serving size and 'application method' for consumption/usage steps.
 
-  You MUST return the data in the requested format, even if the product is not agricultural.
+  You MUST provide accurate, real-world data. If the specific product is niche, generate a highly plausible expert profile based on common products with similar barcode ranges.
 
-  - If the product is an agricultural fertilizer: Provide accurate NPK, crops, and soil info.
-  - If the product is NOT a fertilizer (e.g., a snack, beverage, or electronic item):
-    - Set 'npkComposition', 'suitableCrops', and 'recommendedSoilType' to 'N/A' or 'Not Applicable'.
-    - For the 'usageInstructions', map the product's actual usage to the steps. For example, for a food item:
-        - Step 1 (Dosage): Serving size.
-        - Step 2 (Mixing): Preparation instructions.
-        - Step 3 (Application): How to consume.
-        - Step 4 (Best Time): Storage/shelf life advice.
-        - Step 5 (Safety): Allergy or handling warnings.
+  Structure the 5-Step Usage Guide strictly:
+  Step 1: Recommended dosage / Serving size
+  Step 2: Mixing / Preparation
+  Step 3: Application / Consumption Method
+  Step 4: Best time to use / Storage
+  Step 5: Safety measures
 
-  Your output must include:
-  1. Complete Product Info: Name, Brand, NPK, Suitable Crops, Soil Type, Manufacturer, Expiry, and Safety Precautions.
-  2. A clearly structured 5-Step Usage Instruction set:
-     - Step 1: Recommended dosage per acre
-     - Step 2: Mixing instructions
-     - Step 3: Application method
-     - Step 4: Best time to apply
-     - Step 5: Safety measures
-
-  If the exact product is not in your training data, create a highly realistic profile for a product that would typically have such a barcode. Ensure the advice is professional and accurate.`,
+  Deliver the final expert advice in clear, professional English.`,
 });
 
 const fertilizerProductInfoFlow = ai.defineFlow(

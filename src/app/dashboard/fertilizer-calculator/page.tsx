@@ -10,14 +10,10 @@ import { useLanguage } from "@/lib/hooks";
 import { getFertilizerProductInfo, type FertilizerProductInfo } from "@/ai/flows/fertilizer-recommendation";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useFirestore, useDoc, useMemoFirebase, useUser } from "@/firebase";
-import { doc } from "firebase/firestore";
 
 export default function FertilizerInfoPage() {
   const { t } = useLanguage();
   const { toast } = useToast();
-  const db = useFirestore();
-  const { user } = useUser();
 
   const [barcode, setBarcode] = useState("");
   const [productInfo, setProductInfo] = useState<FertilizerProductInfo | null>(null);
@@ -26,14 +22,6 @@ export default function FertilizerInfoPage() {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-
-  // Firestore lookup for existing product metadata
-  const productRef = useMemoFirebase(() => {
-    if (!db || !barcode || !user) return null;
-    return doc(db, 'fertilizer_products', barcode);
-  }, [db, barcode, user]);
-  
-  const { data: firestoreProduct, isLoading: isLookupLoading } = useDoc(productRef);
 
   useEffect(() => {
     return () => {
@@ -81,12 +69,11 @@ export default function FertilizerInfoPage() {
     setProductInfo(null);
 
     try {
-      // If we found it in Firestore, we could use it, but the user requested Gemini "realtime" info
-      // We'll prioritize Gemini to ensure the detailed structured response matches requirements
+      // Force real-time identification via Gemini API
       const info = await getFertilizerProductInfo({ barcode });
       setProductInfo(info);
     } catch (err: any) {
-      toast({ variant: "destructive", title: "Error", description: "Could not identify this fertilizer barcode." });
+      toast({ variant: "destructive", title: "Error", description: "Could not identify this barcode. Please try again." });
     } finally {
         setLoading(false);
     }
@@ -99,14 +86,14 @@ export default function FertilizerInfoPage() {
           <Calculator className="size-8 text-primary" />
         </div>
         <h1 className="font-headline text-3xl mt-4">{t("fertilizer_calculator_title")}</h1>
-        <p className="text-muted-foreground">Identify fertilizers via barcode and get expert usage steps.</p>
+        <p className="text-muted-foreground">Identify any product via barcode and get expert usage steps.</p>
       </div>
 
       <div className="grid gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Barcode Search</CardTitle>
-            <CardDescription>Scan a barcode or enter the number from the fertilizer bag.</CardDescription>
+            <CardDescription>Scan a barcode or enter the number from the product packaging.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {isCameraOpen && (
@@ -118,7 +105,7 @@ export default function FertilizerInfoPage() {
                   {hasCameraPermission === false && (
                       <Alert variant="destructive">
                           <AlertTitle>Camera Access Required</AlertTitle>
-                          <AlertDescription>Please enable camera permissions in settings.</AlertDescription>
+                          <AlertDescription>Please enable camera permissions in settings to use the scanner.</AlertDescription>
                       </Alert>
                   )}
               </div>
@@ -140,9 +127,9 @@ export default function FertilizerInfoPage() {
                     </Button>
                 </div>
               </div>
-              <Button onClick={handleFetchProduct} disabled={loading || isLookupLoading} className="w-full">
-                {loading || isLookupLoading ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Send className="mr-2 size-4" />}
-                Get Product Info
+              <Button onClick={handleFetchProduct} disabled={loading} className="w-full">
+                {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Send className="mr-2 size-4" />}
+                Identify Product
               </Button>
             </div>
           </CardContent>
@@ -165,11 +152,11 @@ export default function FertilizerInfoPage() {
                         <p className="font-bold text-xl text-primary">{productInfo.npkComposition}</p>
                     </div>
                     <div>
-                        <Label className="text-xs uppercase text-muted-foreground font-bold">Expiry Date</Label>
+                        <Label className="text-xs uppercase text-muted-foreground font-bold">Expiry Info</Label>
                         <p className="font-medium">{productInfo.expiryDate}</p>
                     </div>
                     <div>
-                        <Label className="text-xs uppercase text-muted-foreground font-bold">Suitable Crops</Label>
+                        <Label className="text-xs uppercase text-muted-foreground font-bold">Suitable Usage / Crops</Label>
                         <div className="flex flex-wrap gap-1 mt-1">
                             {productInfo.suitableCrops.map(c => (
                                 <span key={c} className="bg-primary/10 text-primary-foreground text-primary px-2 py-0.5 rounded text-xs border border-primary/20">{c}</span>
@@ -177,7 +164,7 @@ export default function FertilizerInfoPage() {
                         </div>
                     </div>
                     <div>
-                        <Label className="text-xs uppercase text-muted-foreground font-bold">Recommended Soil</Label>
+                        <Label className="text-xs uppercase text-muted-foreground font-bold">Recommended Soil / Environment</Label>
                         <p className="text-sm">{productInfo.recommendedSoilType}</p>
                     </div>
                     <div className="md:col-span-2">
@@ -199,7 +186,7 @@ export default function FertilizerInfoPage() {
             <Card className="border-accent/30 shadow-md">
               <CardHeader className="bg-accent/5 border-b">
                 <CardTitle className="text-xl">Step-by-Step Usage Instructions</CardTitle>
-                <CardDescription>Follow these steps for optimal results.</CardDescription>
+                <CardDescription>Detailed guide for effective application or use.</CardDescription>
               </CardHeader>
               <CardContent className="pt-6 space-y-6">
                 <div className="flex gap-4">
@@ -207,7 +194,7 @@ export default function FertilizerInfoPage() {
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
                             <Scale className="size-4 text-primary" />
-                            <p className="font-bold text-base">Step 1: Recommended Dosage</p>
+                            <p className="font-bold text-base">Step 1: Recommended Dosage / Serving</p>
                         </div>
                         <p className="text-sm text-muted-foreground leading-relaxed">{productInfo.usageInstructions.dosagePerAcre}</p>
                     </div>
@@ -218,7 +205,7 @@ export default function FertilizerInfoPage() {
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
                             <FlaskConical className="size-4 text-primary" />
-                            <p className="font-bold text-base">Step 2: Mixing Instructions</p>
+                            <p className="font-bold text-base">Step 2: Mixing / Preparation</p>
                         </div>
                         <p className="text-sm text-muted-foreground leading-relaxed">{productInfo.usageInstructions.mixingInstructions}</p>
                     </div>
@@ -229,7 +216,7 @@ export default function FertilizerInfoPage() {
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
                             <Droplets className="size-4 text-primary" />
-                            <p className="font-bold text-base">Step 3: Application Method</p>
+                            <p className="font-bold text-base">Step 3: Application / Consumption Method</p>
                         </div>
                         <p className="text-sm text-muted-foreground leading-relaxed">{productInfo.usageInstructions.applicationMethod}</p>
                     </div>
@@ -240,7 +227,7 @@ export default function FertilizerInfoPage() {
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
                             <Clock className="size-4 text-primary" />
-                            <p className="font-bold text-base">Step 4: Best Time to Apply</p>
+                            <p className="font-bold text-base">Step 4: Best Time to Apply / Storage</p>
                         </div>
                         <p className="text-sm text-muted-foreground leading-relaxed">{productInfo.usageInstructions.bestTimeToApply}</p>
                     </div>
