@@ -7,6 +7,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
+  SidebarContent,
 } from "@/components/ui/sidebar";
 import {
   LayoutDashboard,
@@ -45,28 +46,31 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 px-2 py-4">
           <Tractor className="size-8 text-primary" />
           <h1 className="font-headline text-2xl font-bold text-primary">
             {t('farmekox')}
           </h1>
         </div>
       </SidebarHeader>
-      <SidebarMenu className="flex-1 p-2">
-        {navItems.map((item) => (
-          <SidebarMenuItem key={item.href}>
-            <Link href={item.href} legacyBehavior passHref>
+      <SidebarContent>
+        <SidebarMenu className="px-2">
+          {navItems.map((item) => (
+            <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
+                asChild
                 isActive={pathname === item.href}
-                tooltip={{ children: t(item.label as any) }}
+                tooltip={t(item.label as any)}
               >
-                <item.icon />
-                <span>{t(item.label as any)}</span>
+                <Link href={item.href}>
+                  <item.icon />
+                  <span>{t(item.label as any)}</span>
+                </Link>
               </SidebarMenuButton>
-            </Link>
-          </SidebarMenuItem>
-        ))}
-      </SidebarMenu>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarContent>
       <SidebarFooter>
       </SidebarFooter>
     </Sidebar>
