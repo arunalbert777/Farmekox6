@@ -8,15 +8,15 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',
-    theme_color: '#f97316',
+    theme_color: '#22c55e',
     icons: [
       {
-        src: 'https://picsum.photos/seed/farmekox-logo/192/192',
+        src: 'https://picsum.photos/seed/farmekox-sprout/192/192',
         sizes: '192x192',
         type: 'image/png',
       },
       {
-        src: 'https://picsum.photos/seed/farmekox-logo/512/512',
+        src: 'https://picsum.photos/seed/farmekox-sprout/512/512',
         sizes: '512x512',
         type: 'image/png',
       },
