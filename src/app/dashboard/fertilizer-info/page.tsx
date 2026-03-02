@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -5,11 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Camera, Send, AlertCircle, CheckCircle2, FlaskConical, Droplets, Clock, ShieldCheck, Scale, X, QrCode } from "lucide-react";
+import { Loader2, Camera, Send, AlertCircle, CheckCircle2, FlaskConical, Droplets, Clock, ShieldCheck, Scale, X, QrCode, ScanLine } from "lucide-react";
 import { useLanguage } from "@/lib/hooks";
 import { getFertilizerProductInfo, type FertilizerProductInfo } from "@/ai/flows/fertilizer-recommendation";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Html5Qrcode } from "html5-qrcode";
 
 export default function FertilizerInfoPage() {
   const { t } = useLanguage();
@@ -21,74 +23,100 @@ export default function FertilizerInfoPage() {
   
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const SCANNER_ID = "reader";
 
   useEffect(() => {
     return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach(track => track.stop());
+      if (scannerRef.current) {
+        scannerRef.current.stop().catch(console.error);
       }
     };
   }, []);
 
-  const getCameraPermission = async () => {
-    if (typeof window === 'undefined' || !navigator.mediaDevices) {
-        setHasCameraPermission(false);
-        return;
-    }
+  const startScanner = async () => {
     try {
-      // Forcing the BACK camera for scanning
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: { exact: 'environment' } } 
-      }).catch(async () => {
-          // Fallback if 'exact' is not supported by the hardware/browser
-          return await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-      });
-      
+      const html5QrCode = new Html5Qrcode(SCANNER_ID);
+      scannerRef.current = html5QrCode;
+
+      const config = { 
+        fps: 10, 
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.0 
+      };
+
+      await html5QrCode.start(
+        { facingMode: "environment" },
+        config,
+        (decodedText) => {
+          // Success: stop scanner and process result
+          setBarcode(decodedText);
+          handleToggleCamera(); // Stop camera
+          handleFetchProduct(decodedText); // Auto-fetch
+          toast({ title: "Code Scanned", description: `Detected: ${decodedText}` });
+        },
+        () => {
+          // Scan fail: quiet fail, just keep scanning
+        }
+      );
       setHasCameraPermission(true);
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-    } catch (error) {
-      console.error("Camera access denied:", error);
+    } catch (err) {
+      console.error("Scanner start failed:", err);
       setHasCameraPermission(false);
+      toast({ 
+        variant: "destructive", 
+        title: "Camera Error", 
+        description: "Could not access the camera. Please check permissions." 
+      });
+      setIsCameraOpen(false);
     }
   };
 
   const handleToggleCamera = () => {
-      if (isCameraOpen) {
+    if (isCameraOpen) {
+      if (scannerRef.current && scannerRef.current.isScanning) {
+        scannerRef.current.stop().then(() => {
+          scannerRef.current = null;
           setIsCameraOpen(false);
-          if (videoRef.current && videoRef.current.srcObject) {
-              const stream = videoRef.current.srcObject as MediaStream;
-              stream.getTracks().forEach(track => track.stop());
-              videoRef.current.srcObject = null;
-          }
+        }).catch(err => {
+          console.error("Stop failed", err);
+          setIsCameraOpen(false);
+        });
       } else {
-          setIsCameraOpen(true);
-          getCameraPermission();
+        setIsCameraOpen(false);
       }
-  }
+    } else {
+      setIsCameraOpen(true);
+      // Wait for DOM to render the scanner div
+      setTimeout(startScanner, 100);
+    }
+  };
 
-  const handleFetchProduct = async () => {
-    const trimmedBarcode = barcode.trim();
-    if (!trimmedBarcode) {
-        toast({ variant: "destructive", title: "Input Required", description: "Please enter or scan a barcode/QR code." });
-        return;
+  const handleFetchProduct = async (scannedCode?: string) => {
+    const codeToUse = scannedCode || barcode.trim();
+    if (!codeToUse) {
+      toast({ 
+        variant: "destructive", 
+        title: "Input Required", 
+        description: "Please enter or scan a barcode/QR code." 
+      });
+      return;
     }
     
     setLoading(true);
     setProductInfo(null);
 
     try {
-      // Real-time AI identification, bypassing Firestore
-      const info = await getFertilizerProductInfo({ barcode: trimmedBarcode });
+      const info = await getFertilizerProductInfo({ barcode: codeToUse });
       setProductInfo(info);
-      if (isCameraOpen) handleToggleCamera();
     } catch (err: any) {
-      toast({ variant: "destructive", title: "Identification Error", description: "Could not identify this code. Please try again." });
+      toast({ 
+        variant: "destructive", 
+        title: "Identification Error", 
+        description: "Could not identify this code. Please try again." 
+      });
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -99,44 +127,43 @@ export default function FertilizerInfoPage() {
           <QrCode className="size-8 text-primary" />
         </div>
         <h1 className="font-headline text-3xl mt-4">{t("fertilizer_info_title")}</h1>
-        <p className="text-muted-foreground">Scan QR codes, EAN-13 barcodes, or HSN codes for instant product info.</p>
+        <p className="text-muted-foreground">Scan QR codes or barcodes for instant product profiles and usage guides.</p>
       </div>
 
       <div className="grid gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Product Identification</CardTitle>
-            <CardDescription>Enter any EAN, UPC, HSN, or QR code content for real-time identification.</CardDescription>
+            <CardDescription>Use the scanner for barcodes/QR or enter the code manually below.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {isCameraOpen && (
-              <div className="space-y-2 relative group bg-black rounded-md overflow-hidden">
-                  <video ref={videoRef} className="w-full aspect-video object-cover" autoPlay muted playsInline />
-                  <div className="absolute inset-0 border-2 border-primary/50 rounded-md pointer-events-none flex items-center justify-center">
-                      <div className="w-3/4 h-0.5 bg-primary/40 animate-pulse shadow-[0_0_10px_rgba(var(--primary),0.5)]" />
+              <div className="space-y-2 relative group bg-black rounded-md overflow-hidden min-h-[300px] flex flex-col">
+                  <div id={SCANNER_ID} className="w-full flex-1" />
+                  <div className="absolute top-2 right-2 z-10">
+                    <Button 
+                      variant="destructive" 
+                      size="icon" 
+                      className="rounded-full shadow-lg"
+                      onClick={handleToggleCamera}
+                    >
+                      <X className="size-4" />
+                    </Button>
                   </div>
-                  <Button 
-                    variant="destructive" 
-                    size="icon" 
-                    className="absolute top-2 right-2 rounded-full shadow-lg"
-                    onClick={handleToggleCamera}
-                  >
-                    <X className="size-4" />
-                  </Button>
                   {hasCameraPermission === false && (
-                      <div className="absolute inset-0 flex items-center justify-center p-4 bg-black/60">
-                          <Alert variant="destructive" className="max-w-xs">
-                              <AlertTitle>Camera Access Required</AlertTitle>
-                              <AlertDescription>Please enable camera permissions in settings to use the scanner.</AlertDescription>
-                          </Alert>
-                      </div>
+                    <div className="absolute inset-0 flex items-center justify-center p-4 bg-black/60 z-20">
+                      <Alert variant="destructive" className="max-w-xs">
+                        <AlertTitle>Camera Access Required</AlertTitle>
+                        <AlertDescription>Please enable camera permissions in settings to use the scanner.</AlertDescription>
+                      </Alert>
+                    </div>
                   )}
               </div>
             )}
 
             <div className="flex flex-col gap-4">
               <div className="flex-1 space-y-2">
-                <Label htmlFor="barcode">Barcode / QR / HSN Code</Label>
+                <Label htmlFor="barcode">Manual Entry / Scanned Result</Label>
                 <div className="flex gap-2">
                     <Input
                         id="barcode"
@@ -146,12 +173,17 @@ export default function FertilizerInfoPage() {
                         className="flex-1"
                         onKeyDown={(e) => e.key === 'Enter' && handleFetchProduct()}
                     />
-                    <Button onClick={handleToggleCamera} variant={isCameraOpen ? "secondary" : "outline"} size="icon">
-                        <Camera className="size-5" />
+                    <Button 
+                      onClick={handleToggleCamera} 
+                      variant={isCameraOpen ? "secondary" : "outline"} 
+                      size="icon"
+                      className={isCameraOpen ? "animate-pulse border-primary" : ""}
+                    >
+                        {isCameraOpen ? <ScanLine className="size-5 text-primary" /> : <Camera className="size-5" />}
                     </Button>
                 </div>
               </div>
-              <Button onClick={handleFetchProduct} disabled={loading} className="w-full h-12 text-lg">
+              <Button onClick={() => handleFetchProduct()} disabled={loading} className="w-full h-12 text-lg">
                 {loading ? <Loader2 className="mr-2 size-5 animate-spin" /> : <Send className="mr-2 size-5" />}
                 {loading ? 'Identifying...' : 'Get Product Info'}
               </Button>
