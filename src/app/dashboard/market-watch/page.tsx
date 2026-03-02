@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowDown, ArrowUp, LineChart, RefreshCw, Loader2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, LineChart, RefreshCw, Loader2, Newspaper } from 'lucide-react';
 import { useLanguage } from '@/lib/hooks';
+import { getAgriculturalNews, type AgriculturalNewsOutput } from '@/ai/flows/get-agricultural-news';
 
 const initialMandiPrices = [
   { commodity: "Wheat", variety: "Dara", price: 2350, change: 2.5 },
@@ -19,55 +19,48 @@ const initialMandiPrices = [
   { commodity: "Tomato", variety: "Hybrid", price: 1800, change: 5.0 },
 ];
 
-const initialNewsArticles = [
-  {
-    id: 1,
-    title: "Government Announces New Subsidy for Drip Irrigation Systems",
-    source: "AgriNews India",
-    date: "July 24, 2025",
-    image: PlaceHolderImages.find(img => img.id === 'news1'),
-  },
-  {
-    id: 2,
-    title: "Monsoon Forecast Predicts Above-Average Rainfall in Northern States",
-    source: "Weather Today",
-    date: "July 23, 2025",
-    image: PlaceHolderImages.find(img => img.id === 'news2'),
-  },
-];
-
 export default function MarketWatchPage() {
   const { t } = useLanguage();
   const [isPending, startTransition] = useTransition();
   const [mandiPrices, setMandiPrices] = useState(initialMandiPrices);
-  const [newsArticles, setNewsArticles] = useState(initialNewsArticles);
-  const [lastUpdated, setLastUpdated] = useState(new Date().toLocaleTimeString());
+  const [newsArticles, setNewsArticles] = useState<AgriculturalNewsOutput['articles']>([]);
+  const [lastUpdated, setLastUpdated] = useState("");
+
+  // Initialize dates and initial news on mount to avoid hydration mismatch
+  useEffect(() => {
+    const now = new Date();
+    setLastUpdated(now.toLocaleTimeString());
+    
+    // Initial fetch of real-time AI news
+    handleRefresh();
+  }, []);
 
   const handleRefresh = () => {
-    startTransition(() => {
-      // Simulate real-time price updates with random fluctuations
-      const updatedPrices = mandiPrices.map(item => {
-        const fluctuation = (Math.random() * 100 - 50); // +/- 50
-        const newPrice = Math.max(100, Math.floor(item.price + fluctuation));
-        const newChange = parseFloat((Math.random() * 6 - 3).toFixed(1)); // +/- 3%
-        return { ...item, price: newPrice, change: newChange };
-      });
+    startTransition(async () => {
+      const now = new Date();
+      const dateString = now.toISOString().split('T')[0]; // YYYY-MM-DD
 
-      // Simulate getting the "latest this month" news
-      const currentMonthNews = [
-        ...initialNewsArticles,
-        {
-          id: Date.now(),
-          title: "New Export Policy for Onions to Benefit Karnataka Farmers",
-          source: "Market Insight",
-          date: "July 25, 2025",
-          image: PlaceHolderImages.find(img => img.id === 'hero-farm'),
-        }
-      ].slice(-2);
+      try {
+        // 1. Fetch real-time AI news
+        const newsResponse = await getAgriculturalNews({ 
+          region: 'Karnataka, India',
+          currentDate: '2025-07-25' // Keeping it in 2025 as requested
+        });
+        
+        // 2. Update Mandi Prices with fluctuations
+        const updatedPrices = mandiPrices.map(item => {
+          const fluctuation = (Math.random() * 100 - 50);
+          const newPrice = Math.max(100, Math.floor(item.price + fluctuation));
+          const newChange = parseFloat((Math.random() * 6 - 3).toFixed(1));
+          return { ...item, price: newPrice, change: newChange };
+        });
 
-      setMandiPrices(updatedPrices);
-      setNewsArticles(currentMonthNews);
-      setLastUpdated(new Date().toLocaleTimeString());
+        setMandiPrices(updatedPrices);
+        setNewsArticles(newsResponse.articles);
+        setLastUpdated(new Date().toLocaleTimeString());
+      } catch (error) {
+        console.error("Failed to refresh market data:", error);
+      }
     });
   };
 
@@ -78,7 +71,7 @@ export default function MarketWatchPage() {
             <LineChart className="size-8 text-primary" />
         </div>
         <h1 className="font-headline text-3xl mt-4">Market Watch</h1>
-        <p className="text-muted-foreground">Stay updated with the latest news and mandi prices.</p>
+        <p className="text-muted-foreground">Stay updated with the latest AI-curated news and mandi prices.</p>
         
         <div className="mt-6 flex items-center gap-4">
           <Button 
@@ -89,78 +82,92 @@ export default function MarketWatchPage() {
             {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : <RefreshCw className="mr-2 size-4" />}
             {t('refresh')}
           </Button>
-          <span className="text-xs text-muted-foreground bg-secondary px-3 py-1 rounded-full">
-            Last updated: {lastUpdated}
-          </span>
+          {lastUpdated && (
+            <span className="text-xs text-muted-foreground bg-secondary px-3 py-1 rounded-full">
+              Last updated: {lastUpdated}
+            </span>
+          )}
         </div>
       </div>
 
-      <Card className="border-primary/10 shadow-md">
-        <CardHeader className="border-b bg-secondary/10">
-          <CardTitle className="text-xl">Latest Mandi Prices</CardTitle>
-          <CardDescription>Prices from major mandis in Karnataka as of today.</CardDescription>
-        </CardHeader>
-        <CardContent className="pt-6">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="font-bold">Commodity</TableHead>
-                <TableHead className="font-bold">Variety</TableHead>
-                <TableHead className="text-right font-bold">Price (per Quintal)</TableHead>
-                <TableHead className="text-right font-bold">Change</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {mandiPrices.map((item) => (
-                <TableRow key={item.commodity} className="hover:bg-primary/5 transition-colors">
-                  <TableCell className="font-medium">{item.commodity}</TableCell>
-                  <TableCell className="text-muted-foreground text-sm">{item.variety}</TableCell>
-                  <TableCell className="text-right font-bold text-lg">₹{item.price.toLocaleString()}</TableCell>
-                  <TableCell className="text-right">
-                    <Badge 
-                      variant={item.change > 0 ? 'secondary' : 'destructive'}
-                      className={item.change > 0 ? 'bg-green-100 text-green-700 hover:bg-green-200' : ''}
-                    >
-                      {item.change > 0 ? <ArrowUp className="mr-1 size-3" /> : <ArrowDown className="mr-1 size-3" />}
-                      {Math.abs(item.change)}%
-                    </Badge>
-                  </TableCell>
+      <div className="grid gap-8 lg:grid-cols-3">
+        <Card className="lg:col-span-2 border-primary/10 shadow-md h-fit">
+          <CardHeader className="border-b bg-secondary/10">
+            <CardTitle className="text-xl">Latest Mandi Prices</CardTitle>
+            <CardDescription>Prices from major mandis in Karnataka for 2025.</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="font-bold">Commodity</TableHead>
+                  <TableHead className="font-bold">Variety</TableHead>
+                  <TableHead className="text-right font-bold">Price (per Quintal)</TableHead>
+                  <TableHead className="text-right font-bold">Change</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+              </TableHeader>
+              <TableBody>
+                {mandiPrices.map((item) => (
+                  <TableRow key={item.commodity} className="hover:bg-primary/5 transition-colors">
+                    <TableCell className="font-medium">{item.commodity}</TableCell>
+                    <TableCell className="text-muted-foreground text-sm">{item.variety}</TableCell>
+                    <TableCell className="text-right font-bold text-lg">₹{item.price.toLocaleString()}</TableCell>
+                    <TableCell className="text-right">
+                      <Badge 
+                        variant={item.change > 0 ? 'secondary' : 'destructive'}
+                        className={item.change > 0 ? 'bg-green-100 text-green-700 hover:bg-green-200' : ''}
+                      >
+                        {item.change > 0 ? <ArrowUp className="mr-1 size-3" /> : <ArrowDown className="mr-1 size-3" />}
+                        {Math.abs(item.change)}%
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
 
-      <div>
-        <h2 className="font-headline text-2xl mb-4 border-l-4 border-primary pl-4">Latest News This Month</h2>
-        <div className="grid gap-6 md:grid-cols-2">
-          {newsArticles.map((article) => (
-            <Card key={article.id} className="overflow-hidden group hover:shadow-xl transition-all duration-300 border-primary/5">
-                {article.image && (
-                    <div className='aspect-video overflow-hidden relative'>
-                        <Image
-                            src={article.image.imageUrl}
-                            alt={article.image.description}
-                            width={600}
-                            height={400}
-                            className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
-                            data-ai-hint={article.image.imageHint}
-                        />
-                        <div className="absolute top-2 left-2">
-                          <Badge className="bg-primary/90">Latest</Badge>
-                        </div>
+        <div className="space-y-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Newspaper className="size-6 text-primary" />
+            <h2 className="font-headline text-2xl border-l-4 border-primary pl-3">Real-Time News</h2>
+          </div>
+          
+          {isPending && newsArticles.length === 0 ? (
+            <div className="flex flex-col items-center justify-center p-12 bg-secondary/10 rounded-xl border border-dashed">
+              <Loader2 className="size-8 animate-spin text-primary mb-2" />
+              <p className="text-sm text-muted-foreground">Fetching latest headlines...</p>
+            </div>
+          ) : (
+            <div className="grid gap-6">
+              {newsArticles.map((article) => (
+                <Card key={article.id} className="overflow-hidden group hover:shadow-xl transition-all duration-300 border-primary/5">
+                  <div className='aspect-[16/9] overflow-hidden relative'>
+                    <Image
+                      src={`https://picsum.photos/seed/${article.id}/600/400`}
+                      alt={article.title}
+                      width={600}
+                      height={400}
+                      className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+                      data-ai-hint={article.imageHint}
+                    />
+                    <div className="absolute top-2 left-2">
+                      <Badge className="bg-primary/90 shadow-sm">Real-Time AI</Badge>
                     </div>
-                )}
-              <CardHeader>
-                <CardTitle className="group-hover:text-primary transition-colors leading-snug">{article.title}</CardTitle>
-              </CardHeader>
-              <CardFooter className="text-xs text-muted-foreground flex justify-between items-center border-t pt-4 bg-secondary/5">
-                <span className="font-semibold text-primary/80">{article.source}</span>
-                <span>{article.date}</span>
-              </CardFooter>
-            </Card>
-          ))}
+                  </div>
+                  <CardHeader className="p-4">
+                    <CardTitle className="text-lg group-hover:text-primary transition-colors leading-tight">{article.title}</CardTitle>
+                    <CardDescription className="line-clamp-2 text-xs mt-2">{article.summary}</CardDescription>
+                  </CardHeader>
+                  <CardFooter className="text-[10px] text-muted-foreground flex justify-between items-center border-t p-3 bg-secondary/5">
+                    <span className="font-bold text-primary/80 uppercase">{article.source}</span>
+                    <span>{article.date}</span>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
